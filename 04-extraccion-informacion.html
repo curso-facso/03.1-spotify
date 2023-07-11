@@ -1,0 +1,396 @@
+<!DOCTYPE html>
+<html lang="" xml:lang="">
+  <head>
+    <title>Métodos Computacionales para las Ciencias Sociales</title>
+    <meta charset="utf-8" />
+    <meta name="author" content="Klaus Lehmann" />
+    <script src="04-extraccion-informacion_files/header-attrs/header-attrs.js"></script>
+    <link href="04-extraccion-informacion_files/panelset/panelset.css" rel="stylesheet" />
+    <script src="04-extraccion-informacion_files/panelset/panelset.js"></script>
+    <link rel="stylesheet" href="xaringan-themer2.css" type="text/css" />
+  </head>
+  <body>
+    <textarea id="source">
+class: center, middle, inverse, title-slide
+
+.title[
+# Métodos Computacionales para las Ciencias Sociales
+]
+.subtitle[
+## Extracción de información web
+]
+.author[
+### Klaus Lehmann
+]
+
+---
+
+
+
+
+
+
+## Contenidos de la clase
+
+Uso de APIs para las ciencias sociales
+
+*Web scraping* para ~~la vida~~ las ciencias sociales 
+
+
+---
+
+## Produciendo datos
+
+.pull-left[
+
+&lt;img src="imagenes/ferrari.jpg" width="500" /&gt;
+]
+
+--
+
+.pull-right[
+
+&lt;img src="imagenes/tractor.jpg" width="600" /&gt;
+]
+
+---
+
+## Produciendo datos
+
+gratis != fácil
+
+--
+
+Las fuentes de datos no tradicionales y/o web muchas veces implican un arduo trabajo de captura y procesamiento
+
+--
+
+Debemos entrenarnos para ser buenos productores de información
+
+--
+
+Veremos 2 estrategias para recoger información
+
+- Manejo de APIs
+- *web scraping*
+
+### No debemos asustarnos si nos encontramos con tecnologías que no conocemos bien
+
+---
+
+## Formatos y tecnologías de la web
+
+.pull-left[
+
+&lt;img src="imagenes/ejemplo_json.png" width="450" /&gt;
+
+&lt;img src="imagenes/ejemplo_xml.png" width="250" /&gt;
+
+]
+
+.pull-right[
+
+&lt;img src="imagenes/ejemplo_html.png" width="200" /&gt;
+
+&lt;img src="imagenes/ejemplo_css.jpg" width="300" /&gt;
+
+]
+
+---
+
+class: inverse center middle
+
+# APIs
+
+
+---
+
+## ¿Qué es un API?
+
+*Application programming interface* (interfaz de programación de aplicaciones)
+
+--
+
+Pieza de código que comunica 2 aplicaciones o sistemas
+
+--
+
+.center[
+&lt;img src="imagenes/puente.jpeg" width="300" /&gt;
+]
+
+Una API nos permite acceder a datos, sin enterarnos de la implementación que hay detrás
+
+- ¿SQL?
+- ¿Grafos?
+- ¿mongodb?
+
+*No nos importa*
+
+---
+
+## Características de una API
+
+Recibe una petición (*request*) y devuelve una respuesta estructurada
+
+La API manda al servidor la solicitud
+
+Generalmente, la respuesta es un archivo json (ahondaremos en esto después)
+
+--
+
+Métodos más comunes:
+
+- GET: obtener recurso
+- POST: crear recurso o enviar datos
+- PUT: actualizar recurso
+- PATCH: actualizar recurso
+- DELETE: eliminar recurso
+
+--
+
+Nosotros solo utilizaremos GET y POST
+
+---
+
+## Ejemplo de un request
+
+
+
+.panelset[
+.panel[.panel-name[curl]
+
+Hacer *requests* correctamente implica conocer algunos protocolos
+
+Estamos pidiendo todos los discos de Bruno Mars desde Spotify, usando curl desde la terminal
+
+
+
+```r
+curl --request GET \
+--url https://api.spotify.com/v1/artists/0du5cEVh5yTK9QJze8zA0C/albums \
+--header 'Authorization: Bearer BQDV6qbwbL...AYc3Wja1fhyXVfbDZhnwGwXiSM4l1FZw7UoN12YtmSf0omuuBbH_rttJ7uzhFMuY'
+```
+
+]
+
+.panel[.panel-name[httr]
+
+En R podemos usar un paquete llamado httr, pero sigue siendo complejo 
+
+
+
+```r
+by_httr &lt;- GET(url = "https://api.spotify.com/v1/artists/0du5cEVh5yTK9QJze8zA0C/albums", 
+             add_headers(Authorization="Bearer BQDV6qbwbLcun5HK6asPqYRWzvA....7UoN12YtmSf0omuuBbH_rttJ7uzhFMuY")
+)
+```
+
+
+]
+
+
+.panel[.panel-name[spotifyr]
+
+Afortunadamente, hay personas que han construído paquetes 😁
+
+
+```r
+bruno_mars &lt;- get_artist_albums(id = "0du5cEVh5yTK9QJze8zA0C")
+```
+
+Nos centraremos en esta estrategia
+
+En la vida real tendrán que aprender APIs desde 0
+
+]
+
+]
+
+
+---
+
+## Algunas APIs para las ciencias sociales
+
+En este [bookdown](https://bookdown.org/paul/apis_for_social_scientists) se describen varias APIs y aplicaciones para las ciencias sociales
+
+Algunos ejemplos:
+
+- youtube
+- google news
+- twitter
+- spotify
+- google places
+
+--
+
+Revisaremos en detalle spotify y twitter
+
+En la unidad de datos geoespaciales revisaremos *google places*
+
+
+---
+
+class: inverse center middle
+
+# spotify
+
+---
+
+## Primeros pasos
+
+[Pasos](https://developer.spotify.com/documentation/web-api) a seguir
+
+1. Crear una cuenta en spotify (gratis o pagada)
+2. Entrar a [spotify for developers](https://developer.spotify.com) 
+3. Ir a la sección *dashboard* y crear una aplicación 
+4. Dentro de la aplicación, ir a *settings* y buscar las credenciales
+
+
+
+---
+class: center, middle
+
+## Métodos Computacionales para las Ciencias Sociales
+
+### Hasta la próxima clase
+
+
+    </textarea>
+<style data-target="print-only">@media screen {.remark-slide-container{display:block;}.remark-slide-scaler{box-shadow:none;}}</style>
+<script src="https://remarkjs.com/downloads/remark-latest.min.js"></script>
+<script>var slideshow = remark.create({
+"slideNumberFormat": "%current%",
+"highlightStyle": "github",
+"highlightLines": true,
+"ratio": "16:9",
+"countIncrementalSlides": true
+});
+if (window.HTMLWidgets) slideshow.on('afterShowSlide', function (slide) {
+  window.dispatchEvent(new Event('resize'));
+});
+(function(d) {
+  var s = d.createElement("style"), r = d.querySelector(".remark-slide-scaler");
+  if (!r) return;
+  s.type = "text/css"; s.innerHTML = "@page {size: " + r.style.width + " " + r.style.height +"; }";
+  d.head.appendChild(s);
+})(document);
+
+(function(d) {
+  var el = d.getElementsByClassName("remark-slides-area");
+  if (!el) return;
+  var slide, slides = slideshow.getSlides(), els = el[0].children;
+  for (var i = 1; i < slides.length; i++) {
+    slide = slides[i];
+    if (slide.properties.continued === "true" || slide.properties.count === "false") {
+      els[i - 1].className += ' has-continuation';
+    }
+  }
+  var s = d.createElement("style");
+  s.type = "text/css"; s.innerHTML = "@media print { .has-continuation { display: none; } }";
+  d.head.appendChild(s);
+})(document);
+// delete the temporary CSS (for displaying all slides initially) when the user
+// starts to view slides
+(function() {
+  var deleted = false;
+  slideshow.on('beforeShowSlide', function(slide) {
+    if (deleted) return;
+    var sheets = document.styleSheets, node;
+    for (var i = 0; i < sheets.length; i++) {
+      node = sheets[i].ownerNode;
+      if (node.dataset["target"] !== "print-only") continue;
+      node.parentNode.removeChild(node);
+    }
+    deleted = true;
+  });
+})();
+// add `data-at-shortcutkeys` attribute to <body> to resolve conflicts with JAWS
+// screen reader (see PR #262)
+(function(d) {
+  let res = {};
+  d.querySelectorAll('.remark-help-content table tr').forEach(tr => {
+    const t = tr.querySelector('td:nth-child(2)').innerText;
+    tr.querySelectorAll('td:first-child .key').forEach(key => {
+      const k = key.innerText;
+      if (/^[a-z]$/.test(k)) res[k] = t;  // must be a single letter (key)
+    });
+  });
+  d.body.setAttribute('data-at-shortcutkeys', JSON.stringify(res));
+})(document);
+(function() {
+  "use strict"
+  // Replace <script> tags in slides area to make them executable
+  var scripts = document.querySelectorAll(
+    '.remark-slides-area .remark-slide-container script'
+  );
+  if (!scripts.length) return;
+  for (var i = 0; i < scripts.length; i++) {
+    var s = document.createElement('script');
+    var code = document.createTextNode(scripts[i].textContent);
+    s.appendChild(code);
+    var scriptAttrs = scripts[i].attributes;
+    for (var j = 0; j < scriptAttrs.length; j++) {
+      s.setAttribute(scriptAttrs[j].name, scriptAttrs[j].value);
+    }
+    scripts[i].parentElement.replaceChild(s, scripts[i]);
+  }
+})();
+(function() {
+  var links = document.getElementsByTagName('a');
+  for (var i = 0; i < links.length; i++) {
+    if (/^(https?:)?\/\//.test(links[i].getAttribute('href'))) {
+      links[i].target = '_blank';
+    }
+  }
+})();
+// adds .remark-code-has-line-highlighted class to <pre> parent elements
+// of code chunks containing highlighted lines with class .remark-code-line-highlighted
+(function(d) {
+  const hlines = d.querySelectorAll('.remark-code-line-highlighted');
+  const preParents = [];
+  const findPreParent = function(line, p = 0) {
+    if (p > 1) return null; // traverse up no further than grandparent
+    const el = line.parentElement;
+    return el.tagName === "PRE" ? el : findPreParent(el, ++p);
+  };
+
+  for (let line of hlines) {
+    let pre = findPreParent(line);
+    if (pre && !preParents.includes(pre)) preParents.push(pre);
+  }
+  preParents.forEach(p => p.classList.add("remark-code-has-line-highlighted"));
+})(document);</script>
+
+<script>
+slideshow._releaseMath = function(el) {
+  var i, text, code, codes = el.getElementsByTagName('code');
+  for (i = 0; i < codes.length;) {
+    code = codes[i];
+    if (code.parentNode.tagName !== 'PRE' && code.childElementCount === 0) {
+      text = code.textContent;
+      if (/^\\\((.|\s)+\\\)$/.test(text) || /^\\\[(.|\s)+\\\]$/.test(text) ||
+          /^\$\$(.|\s)+\$\$$/.test(text) ||
+          /^\\begin\{([^}]+)\}(.|\s)+\\end\{[^}]+\}$/.test(text)) {
+        code.outerHTML = code.innerHTML;  // remove <code></code>
+        continue;
+      }
+    }
+    i++;
+  }
+};
+slideshow._releaseMath(document);
+</script>
+<!-- dynamically load mathjax for compatibility with self-contained -->
+<script>
+(function () {
+  var script = document.createElement('script');
+  script.type = 'text/javascript';
+  script.src  = 'https://mathjax.rstudio.com/latest/MathJax.js?config=TeX-MML-AM_CHTML';
+  if (location.protocol !== 'file:' && /^https?:/.test(script.src))
+    script.src  = script.src.replace(/^https?:/, '');
+  document.getElementsByTagName('head')[0].appendChild(script);
+})();
+</script>
+  </body>
+</html>

@@ -1,0 +1,52 @@
+
+access_token <- get_spotify_access_token()
+
+
+dream <- get_artist_albums(id = "0du5cEVh5yTK9QJze8zA0C")
+
+x <- spotifyr::get_album(id = "dw5MAl1tT4K4SjR5_yIoAg")
+
+https://open.spotify.com/artist/0du5cEVh5yTK9QJze8zA0C?si=lVvtfYlQSpmtOih2kGKdjQ
+
+
+https://open.spotify.com/artist/6mdiAmATAx73kdxrNrnlao?si=Il5M2ofCRIqA1DXNh-21Qg
+
+library(httr)
+
+bruto <- GET(url = "https://api.spotify.com/v1/artists/0du5cEVh5yTK9QJze8zA0C", 
+    add_headers(Authorization="Bearer BQAoAFgvFygv6uMXg0y4WwiVXmcPBawdfNbz7_tdbk58JEy9hYkRmvQeziYcKm2_3X80T2WCh5y_izC4cnJV3rvDNGIAeGyr1Te2HeYheyxzFC-QmXA")
+    )
+
+bruto2 <- httr::content(bruto)
+bruto2$genres
+
+
+spoty <- get_artist(id = "6mdiAmATAx73kdxrNrnlao")
+
+
+
+library(httr)
+x <- GET("https://trends.google.com/trends/explore",
+    query=list(q = "Covid",geo = "US"))
+
+httr::status_code(x)
+
+###############
+# Obtener álbumes de un artista
+###############
+
+bruno_mars_albums <- get_artist_albums(id = "0du5cEVh5yTK9QJze8zA0C")
+
+library(httr)
+by_httr <- GET(url = "https://api.spotify.com/v1/artists/0du5cEVh5yTK9QJze8zA0C/albums", 
+             add_headers(Authorization="Bearer BQDV6qbwbLcun5HK6asPqYRWzvAF1KvCRqX7lgngR0_JVGfxj-ZAYc3Wja1fhyXVfbDZhnwGwXiSM4l1FZw7UoN12YtmSf0omuuBbH_rttJ7uzhFMuY")
+)
+
+contenido <- content(by_httr)
+contenido$items[[1]]
+
+
+curl --request GET \
+--url https://api.spotify.com/v1/artists/0du5cEVh5yTK9QJze8zA0C/albums \
+--header 'Authorization: Bearer BQDV6qbwbLcun5HK6asPqYRWzvAF1KvCRqX7lgngR0_JVGfxj-ZAYc3Wja1fhyXVfbDZhnwGwXiSM4l1FZw7UoN12YtmSf0omuuBbH_rttJ7uzhFMuY'
+
