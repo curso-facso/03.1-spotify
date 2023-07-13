@@ -7,6 +7,19 @@
     <script src="04-extraccion-informacion_files/header-attrs/header-attrs.js"></script>
     <link href="04-extraccion-informacion_files/panelset/panelset.css" rel="stylesheet" />
     <script src="04-extraccion-informacion_files/panelset/panelset.js"></script>
+    <script src="04-extraccion-informacion_files/htmlwidgets/htmlwidgets.js"></script>
+    <link href="04-extraccion-informacion_files/datatables-css/datatables-crosstalk.css" rel="stylesheet" />
+    <script src="04-extraccion-informacion_files/datatables-binding/datatables.js"></script>
+    <script src="04-extraccion-informacion_files/jquery/jquery-3.6.0.min.js"></script>
+    <link href="04-extraccion-informacion_files/dt-core/css/jquery.dataTables.min.css" rel="stylesheet" />
+    <link href="04-extraccion-informacion_files/dt-core/css/jquery.dataTables.extra.css" rel="stylesheet" />
+    <script src="04-extraccion-informacion_files/dt-core/js/jquery.dataTables.min.js"></script>
+    <link href="04-extraccion-informacion_files/crosstalk/css/crosstalk.min.css" rel="stylesheet" />
+    <script src="04-extraccion-informacion_files/crosstalk/js/crosstalk.min.js"></script>
+    <script src="04-extraccion-informacion_files/plotly-binding/plotly.js"></script>
+    <script src="04-extraccion-informacion_files/typedarray/typedarray.min.js"></script>
+    <link href="04-extraccion-informacion_files/plotly-htmlwidgets-css/plotly-htmlwidgets.css" rel="stylesheet" />
+    <script src="04-extraccion-informacion_files/plotly-main/plotly-latest.min.js"></script>
     <link rel="stylesheet" href="xaringan-themer2.css" type="text/css" />
   </head>
   <body>
@@ -244,9 +257,160 @@ class: inverse center middle
 1. Crear una cuenta en spotify (gratis o pagada)
 2. Entrar a [spotify for developers](https://developer.spotify.com) 
 3. Ir a la sección *dashboard* y crear una aplicación 
-4. Dentro de la aplicación, ir a *settings* y buscar las credenciales
+4. Dentro de la aplicación, ir a *settings* y buscar las credenciales (client id y client secret)
+
+--
+
+### Ahora podemos empezar a descargar datos
+
+---
+
+## Primeros pasos
 
 
+```r
+install.packages("spotifyr")
+```
+
+--
+
+Con nuestras credenciales debemos activar un *token* que dura **una hora**
+
+
+```r
+library(spotifyr)
+#Crear token a partir de las credenciales
+access_token &lt;- get_spotify_access_token(client_id = Sys.getenv("SPOTIFY_CLIENT_ID"), 
+                                         client_secret = Sys.getenv("SPOTIFY_CLIENT_SECRET"))
+```
+
+--
+
+**Comentario al margen**
+
+- Nunca deben escribir explícitamente sus credenciales en el código
+- Una alternativa es usar variables de ambiente
+
+---
+## Identificadores spotify
+
+Las APIs suelen funcionar con un sistema de identificadores:
+
+- álbum
+- artista
+- mercado
+- episodios
+
+Podemos ver el id de un artista mediante la aplicación de escritorio
+
+.center[
+&lt;img src="imagenes/spotify_logo.png" width="300" /&gt;
+]
+
+---
+
+## Discos de Bruno Mars
+
+
+```r
+bruno_albums &lt;-  get_artist_albums("0du5cEVh5yTK9QJze8zA0C")
+```
+
+<div class="datatables html-widget html-fill-item-overflow-hidden html-fill-item" id="htmlwidget-4ee16415ae9fab7ac822" style="width:100%;height:auto;"></div>
+<script type="application/json" data-for="htmlwidget-4ee16415ae9fab7ac822">{"x":{"filter":"none","vertical":false,"data":[["1","2","3","4","5","6","7","8","9","10","11","12","13","14","15","16","17","18","19","20"],["album","album","album","album","single","single","single","single","single","single","single","single","single","single","single","single","single","single","single","single"],["4VZ7jhV0wHpoNPCB7Vmiml","4PgleR09JVnm3zY1fW3XBA","58ufpQsJ1DS5kq4hhzQDiI","6J84szYCnMfzEcvIcfWMFL","6QKXGIgwWmWBMmIktMOchR","4rRB9bAIwawVcrdLXuq9Qu","4uoEruXjt0APvHaSqrwqPH","5a4sJJ3qjn6hqRsvm0Veso","7mkyc2BUahNfo0orKzqNGB","5AVEtKtguEa8sqYhSj3zFW","0yDiMZdbFwO5lGB9Dq5wlL","1onK6XeDccA2NW6SlzQMNK","1z4Zl2hcCiRyB4uIPeqEfr","6LD3J50OxLEQbAB8ahoj1S","2xclonI4faQWl6lhqecGM5","0219JhsyibMkftKsI94Mv1","3X801hUAmbUAHmatvmMhfA","5EA4kogB3cZr2qykFlZDYV","07OCQAUAQaZmKORKt2StFm","7yBnuW3SpMKy3EB9iU0C7p"],["An Evening With Silk Sonic","24K Magic","Unorthodox Jukebox","Doo-Wops &amp; Hooligans","Love's Train","Leave The Door Open (Live)","BLOW (with Chris Stapleton &amp; Bruno Mars)","Please Me","Wake Up in the Sky","Finesse (Remix) [feat. Cardi B]","Versace On The Floor (Bruno Mars vs. David Guetta)","24K Magic (R3hab Remix)","That's What I Like (feat. Gucci Mane) [Remix]","That's What I Like (Alan Walker Remix)","That's What I Like (PARTYNEXTDOOR Remix)","That's What I Like (BLVK JVCK Remix)","Versace on the Floor","24K Magic","Gorilla (feat. R. Kelly And Pharrell) [G-Mix]","Treasure Remix EP"],[10,9,10,12,1,2,1,1,1,3,1,1,1,1,1,1,1,1,1,5]],"container":"<table class=\"display\">\n  <thead>\n    <tr>\n      <th> <\/th>\n      <th>album_type<\/th>\n      <th>id<\/th>\n      <th>name<\/th>\n      <th>total_tracks<\/th>\n    <\/tr>\n  <\/thead>\n<\/table>","options":{"pageLength":5,"dom":"p","columnDefs":[{"className":"dt-right","targets":4},{"orderable":false,"targets":0}],"order":[],"autoWidth":false,"orderClasses":false,"lengthMenu":[5,10,25,50,100]}},"evals":[],"jsHooks":[]}</script>
+
+
+---
+
+## Exploremos Unorthodox Jukebox
+
+
+```r
+jukebox &lt;-  get_album_tracks("58ufpQsJ1DS5kq4hhzQDiI") # id del álbum
+```
+
+<div class="datatables html-widget html-fill-item-overflow-hidden html-fill-item" id="htmlwidget-0043705a6d95a98cc79b" style="width:100%;height:auto;"></div>
+<script type="application/json" data-for="htmlwidget-0043705a6d95a98cc79b">{"x":{"filter":"none","vertical":false,"data":[["1","2","3","4","5","6","7","8","9","10"],[228720,233478,244493,178560,228573,213826,225026,207560,203973,132640],["3G5iN5QBqMeXx3uZPy8tgB","3w3y8KPTfNeOKPiqUTakBh","2ih2U8ttFzCjnQ5njF3SrR","55h7vJchibLdUkxdlX3fK7","30raivfq7rSt5nKltiHfzG","0nJW01T7XtvILxQgC5J7Wh","0inMKhbKWOTDA9UBUAKoU6","2tCPIp83mRXvVTytTAf1W4","6FPQabaldvKE5cjqRfY9Os","7lXOqE38eCr979gp27O5wr"],["Young Girls","Locked out of Heaven","Gorilla","Treasure","Moonshine","When I Was Your Man","Natalie","Show Me","Money Make Her Smile","If I Knew"]],"container":"<table class=\"display\">\n  <thead>\n    <tr>\n      <th> <\/th>\n      <th>duration_ms<\/th>\n      <th>id<\/th>\n      <th>name<\/th>\n    <\/tr>\n  <\/thead>\n<\/table>","options":{"pageLength":5,"dom":"p","columnDefs":[{"className":"dt-right","targets":1},{"orderable":false,"targets":0}],"order":[],"autoWidth":false,"orderClasses":false,"lengthMenu":[5,10,25,50,100]}},"evals":[],"jsHooks":[]}</script>
+
+---
+
+## Exploremos treasure
+
+La API nos devuelve características del *track*
+
+
+```r
+treasure &lt;- get_track_audio_features("55h7vJchibLdUkxdlX3fK7")
+```
+
+<div class="datatables html-widget html-fill-item-overflow-hidden html-fill-item" id="htmlwidget-3e7e321cd5cdc21dc9e8" style="width:100%;height:auto;"></div>
+<script type="application/json" data-for="htmlwidget-3e7e321cd5cdc21dc9e8">{"x":{"filter":"none","vertical":false,"data":[["1"],[0.874],[0.692],[5],[-5.28],[0],[0.0431],[0.0412],[7.24e-05],[0.324],[0.937],[116.017],[178560]],"container":"<table class=\"display\">\n  <thead>\n    <tr>\n      <th> <\/th>\n      <th>danceability<\/th>\n      <th>energy<\/th>\n      <th>key<\/th>\n      <th>loudness<\/th>\n      <th>mode<\/th>\n      <th>speechiness<\/th>\n      <th>acousticness<\/th>\n      <th>instrumentalness<\/th>\n      <th>liveness<\/th>\n      <th>valence<\/th>\n      <th>tempo<\/th>\n      <th>duration_ms<\/th>\n    <\/tr>\n  <\/thead>\n<\/table>","options":{"pageLength":5,"dom":"p","columnDefs":[{"className":"dt-right","targets":[1,2,3,4,5,6,7,8,9,10,11,12]},{"orderable":false,"targets":0}],"order":[],"autoWidth":false,"orderClasses":false,"lengthMenu":[5,10,25,50,100]}},"evals":[],"jsHooks":[]}</script>
+
+---
+
+## Discografía completa
+
+Todos los *tracks* de *Foo Fighters*, *Shakira* y *Slayer*
+
+
+```r
+foo_fighters &lt;-  get_artist_audio_features("7jy3rLJdDQY21OgRLCZ9sD", include_groups = "album")
+shakira &lt;-  get_artist_audio_features("0EmeFodog0BfCgMzAIvKQp", include_groups = "album")
+slayer &lt;-  get_artist_audio_features("1IQ2e1buppatiN1bxUVkrk", include_groups = "album")
+full &lt;- bind_rows(foo_fighters, shakira, slayer)
+```
+
+<div class="plotly html-widget html-fill-item-overflow-hidden html-fill-item" id="htmlwidget-d8e22503a791d7f9f7d8" style="width:70%;height:360px;"></div>
+<script type="application/json" data-for="htmlwidget-d8e22503a791d7f9f7d8">{"x":{"data":[{"orientation":"v","width":[0.3,0.3,0.3],"base":[0,0,0],"x":[0.7,1.7,2.7],"y":[0.44409604519774,0.654472972972973,0.294128571428571],"text":["artist_name: Foo Fighters<br />value: 0.4440960<br />indicator: danceability","artist_name: Shakira<br />value: 0.6544730<br />indicator: danceability","artist_name: Slayer<br />value: 0.2941286<br />indicator: danceability"],"type":"bar","textposition":"none","marker":{"autocolorscale":false,"color":"rgba(248,118,109,1)","line":{"width":1.88976377952756,"color":"transparent"}},"name":"danceability","legendgroup":"danceability","showlegend":true,"xaxis":"x","yaxis":"y","hoverinfo":"text","frame":null},{"orientation":"v","width":[0.3,0.3,0.3],"base":[0,0,0],"x":[1,2,3],"y":[0.738946892655367,0.736833783783784,0.962549019607843],"text":["artist_name: Foo Fighters<br />value: 0.7389469<br />indicator: energy","artist_name: Shakira<br />value: 0.7368338<br />indicator: energy","artist_name: Slayer<br />value: 0.9625490<br />indicator: energy"],"type":"bar","textposition":"none","marker":{"autocolorscale":false,"color":"rgba(0,186,56,1)","line":{"width":1.88976377952756,"color":"transparent"}},"name":"energy","legendgroup":"energy","showlegend":true,"xaxis":"x","yaxis":"y","hoverinfo":"text","frame":null},{"orientation":"v","width":[0.3,0.3,0.3],"base":[0,0,0],"x":[1.3,2.3,3.3],"y":[0.406422033898305,0.564017567567568,0.176528571428571],"text":["artist_name: Foo Fighters<br />value: 0.4064220<br />indicator: valence","artist_name: Shakira<br />value: 0.5640176<br />indicator: valence","artist_name: Slayer<br />value: 0.1765286<br />indicator: valence"],"type":"bar","textposition":"none","marker":{"autocolorscale":false,"color":"rgba(97,156,255,1)","line":{"width":1.88976377952756,"color":"transparent"}},"name":"valence","legendgroup":"valence","showlegend":true,"xaxis":"x","yaxis":"y","hoverinfo":"text","frame":null}],"layout":{"margin":{"t":26.2283105022831,"r":7.30593607305936,"b":25.5707762557078,"l":34.337899543379},"plot_bgcolor":"rgba(255,255,255,1)","paper_bgcolor":"rgba(255,255,255,1)","font":{"color":"rgba(0,0,0,1)","family":"","size":14.6118721461187},"xaxis":{"domain":[0,1],"automargin":true,"type":"linear","autorange":false,"range":[0.4,3.6],"tickmode":"array","ticktext":["Foo Fighters","Shakira","Slayer"],"tickvals":[1,2,3],"categoryorder":"array","categoryarray":["Foo Fighters","Shakira","Slayer"],"nticks":null,"ticks":"outside","tickcolor":"rgba(51,51,51,1)","ticklen":3.65296803652968,"tickwidth":0.66417600664176,"showticklabels":true,"tickfont":{"color":"rgba(77,77,77,1)","family":"","size":11.689497716895},"tickangle":-0,"showline":false,"linecolor":null,"linewidth":0,"showgrid":true,"gridcolor":"rgba(235,235,235,1)","gridwidth":0.66417600664176,"zeroline":false,"anchor":"y","title":{"text":"","font":{"color":null,"family":null,"size":0}},"hoverformat":".2f"},"yaxis":{"domain":[0,1],"automargin":true,"type":"linear","autorange":false,"range":[-0.0481274509803922,1.01067647058824],"tickmode":"array","ticktext":["0.00","0.25","0.50","0.75","1.00"],"tickvals":[0,0.25,0.5,0.75,1],"categoryorder":"array","categoryarray":["0.00","0.25","0.50","0.75","1.00"],"nticks":null,"ticks":"outside","tickcolor":"rgba(51,51,51,1)","ticklen":3.65296803652968,"tickwidth":0.66417600664176,"showticklabels":true,"tickfont":{"color":"rgba(77,77,77,1)","family":"","size":11.689497716895},"tickangle":-0,"showline":false,"linecolor":null,"linewidth":0,"showgrid":true,"gridcolor":"rgba(235,235,235,1)","gridwidth":0.66417600664176,"zeroline":false,"anchor":"x","title":{"text":"","font":{"color":null,"family":null,"size":0}},"hoverformat":".2f"},"shapes":[{"type":"rect","fillcolor":"transparent","line":{"color":"rgba(51,51,51,1)","width":0.66417600664176,"linetype":"solid"},"yref":"paper","xref":"paper","x0":0,"x1":1,"y0":0,"y1":1}],"showlegend":true,"legend":{"bgcolor":"rgba(255,255,255,1)","bordercolor":"transparent","borderwidth":1.88976377952756,"font":{"color":"rgba(0,0,0,1)","family":"","size":11.689497716895},"title":{"text":"indicator","font":{"color":"rgba(0,0,0,1)","family":"","size":14.6118721461187}}},"hovermode":"closest","barmode":"relative"},"config":{"doubleClick":"reset","modeBarButtonsToAdd":["hoverclosest","hovercompare"],"showSendToCloud":false},"source":"A","attrs":{"465a74cd5ce":{"x":{},"y":{},"fill":{},"type":"bar"}},"cur_data":"465a74cd5ce","visdat":{"465a74cd5ce":["function (y) ","x"]},"highlight":{"on":"plotly_click","persistent":false,"dynamic":false,"selectize":false,"opacityDim":0.2,"selected":{"opacity":1},"debounce":0},"shinyEvents":["plotly_hover","plotly_click","plotly_selected","plotly_relayout","plotly_brushed","plotly_brushing","plotly_clickannotation","plotly_doubleclick","plotly_deselect","plotly_afterplot","plotly_sunburstclick"],"base_url":"https://plot.ly"},"evals":[],"jsHooks":[]}</script>
+
+
+---
+
+## Explorando géneros
+
+La función `get_genre_artists` permite hacer búsquedas con ciertos criterios
+
+- género
+- mercado
+
+--
+
+Es muy importante el sistema de **paginación**
+
+--
+
+En general, las APIs tienen mecanismos para no solicitar toda la información en una sola llamada
+
+- limit: número de respuestas que queremos
+- offset: índice desde el cual queremos partir
+
+
+
+```r
+bandas_chilenas1 &lt;-  get_genre_artists(genre = "rock", market = "CL", limit = 5, offset = 0)  
+bandas_chilenas2 &lt;-  get_genre_artists(genre = "rock", market = "CL", limit = 5, offset = 4)  
+bandas_chilenas3 &lt;-  get_genre_artists(genre = "rock", market = "CL", limit = 5, offset = 2)  
+```
+
+
+```r
+#access_token
+
+# curl --request GET \
+#   --url 'https://api.spotify.com/v1/search?q=genre%3Arock&amp;type=artist&amp;market=CL&amp;limit=2' \
+#   --header 'Authorization: Bearer BQAGYF-Hpx948A6IqmreUmmFb5RCPh-iTVwLXCvWe5aFhr6h-dTpph9nB89Elo9O9XeXXwTmZ8RwoGYmkkgGCEoOx7qj9dgeoQeVSsgwueaQvpM3oHA'
+
+
+# data &lt;- GET(url = 'https://api.spotify.com/v1/search?q=genre%3Arock&amp;type=artist&amp;market=CL&amp;limit=9&amp;offset=991',
+#     add_headers(Authorization="Bearer BQAGYF-Hpx948A6IqmreUmmFb5RCPh-iTVwLXCvWe5aFhr6h-dTpph9nB89Elo9O9XeXXwTmZ8RwoGYmkkgGCEoOx7qj9dgeoQeVSsgwueaQvpM3oHA"))
+#library(jsonlite)
+# res &lt;- fromJSON(content(data, as = "text", encoding = "UTF-8"), flatten = TRUE)
+# artists &lt;- res$artists
+# artists$items$name
+```
+
+
+---
 
 ---
 class: center, middle
