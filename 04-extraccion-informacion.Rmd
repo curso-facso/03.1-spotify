@@ -35,6 +35,7 @@ library(DT)
 library(kableExtra)
 library(plotly)
 library(readr)
+library(feather)
 #style_duo_accent(
 #  primary_color = "#1381B0",
 #  secondary_color = "#FF961C",
@@ -308,7 +309,7 @@ Podemos ver el id de un artista mediante la aplicación de escritorio
 ## Discos de Bruno Mars
 
 ```{r}
-bruno_albums <-  get_artist_albums("0du5cEVh5yTK9QJze8zA0C")
+bruno_albums <-  get_artist_albums("0du5cEVh5yTK9QJze8zA0C", limit = 50)
 ```
 
 ```{r, echo=FALSE}
@@ -416,15 +417,16 @@ final <-  get_genre_artists(genre = "rock", market = "CL", limit = 2, offset = 1
 
 ## Discos de rock en Chile
 
-Vamos a descargar todos los discos de rock dentro del mercado chileno
+Vamos a descargar información sobre canciones de rock dentro del mercado chileno
 
 --
 
 Debemos seguir varios pasos:
 
 1. Buscar los identificadores de las bandas
-2. Limpiar la lista de bandas
-3. Usar los identificadores, para buscar la discografía de cada banda
+2. Buscar los identificadores de los álbumes
+3. Buscar los identificadores de las canciones
+4. Descargar las características de las canciones
 
 --
 
@@ -432,11 +434,11 @@ El paso 1 lo harán ustedes
 
 --
 
-Los pases 2 y 3 los haremos en conjunto
+Los pases 2, 3 y 4 los haremos en conjunto
 
 
 ---
-## Discos de rock en Chile: paso 1
+## Paso 1: discos de rock en Chile
 
 Utilizando el sistema de paginación, descarga toda las bandas de rock que participan en el mercado chileno
 
@@ -451,8 +453,7 @@ secuencia <-  seq(0, 950, 50)
 ```
 
 
-```{r}
-
+```{r, eval=FALSE}
 # Bonus track: podemos resolverlo con map de manera muy compacta
 bandas_rock_df <- map(secuencia, ~get_genre_artists(genre = "rock", market = "CL", limit = 50, offset = .x)) %>% 
   bind_rows()
@@ -461,40 +462,118 @@ bandas_rock_df <- map(secuencia, ~get_genre_artists(genre = "rock", market = "CL
 
 ---
 
-## Discos de rock en Chile: paso 2
+## Paso 2: Extraer identificadores
 
-Nos gustaría aproximarnos a las bandas chilenas
+**Muestra de 150 bandas**
 
-Podemos usar la popularidad como un *proxy*
+```{r, eval=FALSE}
+set.seed(123)
+library(feather)
+bandas_sample <-  bandas_rock_df %>% 
+  sample_n(150) %>% 
+  select(id, name, popularity)
+write_feather(bandas_sample, "data/muestra_bandas.feather")
 
-
-```{r}
-chilenas <-  bandas_rock_df %>% 
-  arrange(popularity) %>% 
-  slice(1:100) %>% 
-  pull(id)
-  
 ```
 
 Ahora buscamos la discografía para todas estas bandas
 
+--
+
+
 ```{r, eval=FALSE}
-discografia <-  map(chilenas,  ~get_artist_audio_features(.x, include_groups = "album")) %>% 
+datos <- list()
+i <- 1 # iterador
+# Para cada banda
+for (id in bandas_sample$id) {
+  # Descargar discografía completa 
+  datos[[i]] <-  get_artist_audio_features(id, include_groups = "album") #<<
+  i <- i + 1
+}
+# Combinar todo en una tabla
+final <- datos %>% 
   bind_rows()
+write_csv(final, "data/muestra_mercado_chileno.csv")
+```
 
-write_csv(discografia, "data/bandas_chilenas.csv")
+
+**Este código podría funcionar, pero hay 2 consideraciones**
+- función get_artist_albums tiene por defecto 20 álbumes
+- Pueden pasar cosas inesperadas
+- Cuota máxima de la API
 
 
+---
+
+##  Restricciones de la API
+
+.center[
+<img src="imagenes/rates.png" width="700" />
+]
+
+La función `get_artist_audio_features`, internamente, hace muchos *requests*
+
+```{r, eval=FALSE}
+# para cada artista
+artista
+  # Busca sus álbumes
+  album
+    # Busca tracks dentro de cada álbum
+    tracks
+      # Busca características para cada canción
+      features
+```
+
+--
+
+### Si pedimos todas las bandas, es muy probable que sobrepasemos la cuota :(
+
+---
+
+## Código real
+
+
+```{r, eval=FALSE}
+datos <- list()
+i <- 1 # iterador
+# Para cada banda
+for (id in bandas_sample$id) {
+  # Atrapar errores
+  out <- tryCatch(
+    {
+      get_artist_audio_features(id, include_groups = "album")
+    },
+    error=function(cond) {
+      message(paste("No albums found with artist_id", id))
+      return(NA)
+    }
+  )
+  datos[[i]] <-  out
+  i <- i + 1
+}
 
 ```
 
-```{r leer bandas }
-discografia <- read_csv("data/bandas_chilenas.csv")
-caracteristicas <-  discografia %>% 
-  group_by(album_release_year) %>%
-  summarise_at(.vars = c("danceability", "energy", "valence", "tempo"), .funs =  mean)
+Debemos dormir estratégicamente
+
+```{r, eval=FALSE}
+Sys.sleep(1)
+```
+
+---
+
+## Analicemos los datos
+
+.panelset[
+.panel[.panel-name[álbumes]
+
+```{r, fig.height=5, fig.align='center'}
+bandas_sample <- read_feather("data/muestra_bandas.feather")
+discografia <- read_csv("data/muestra_mercado_chileno.csv")
+print(nrow(discografia))
 
 n_discos <- discografia %>% 
+  filter(album_release_year > 0 & album_release_year < 2023) %>% 
   group_by(album_release_year, album_id) %>% 
   slice(1) %>%
   group_by(album_release_year) %>% 
@@ -502,12 +581,127 @@ n_discos <- discografia %>%
 
 n_discos %>% 
   ggplot(aes(x = album_release_year, n, group = 1)) +
-  geom_line()
+  geom_line() +
+  theme_bw()
 
 ```
 
+
+]
+
+
+
+.panel[.panel-name[características]
+
+```{r, fig.height=5, fig.align='center'}
+discografia_long <-  discografia %>% 
+  filter(album_release_year > 0 ) %>% 
+  group_by(album_release_year) %>%
+  summarise_at(.vars = c("danceability", "energy", "valence", "tempo", "tempo", "duration_ms"), .funs =  mean) %>% 
+  pivot_longer(cols = -album_release_year, names_to = "var", values_to = "value")
+
+discografia_long %>% 
+  filter(var %in% c("danceability", "energy", "valence") ) %>% 
+  filter(album_release_year < 2023) %>% 
+  ggplot(aes(x = album_release_year, y = value, group = var, color = var)) +
+  geom_line() +
+  theme_bw()
+
+```
+
+
+]
+
+
+.panel[.panel-name[tempo]
+
+```{r, fig.height=5, fig.align='center'}
+discografia_long %>% 
+  filter(album_release_year < 2023) %>% 
+  filter(var == "tempo") %>% 
+  ggplot(aes(x = album_release_year, y = value, group = 1)) +
+  geom_line() +
+  theme_bw()
+```
+
+
+]
+
+
+.panel[.panel-name[duración]
+
+```{r, fig.height=5, fig.align='center'}
+discografia_long %>% 
+  filter(album_release_year < 2023) %>% 
+  filter(var == "duration_ms") %>% 
+  ggplot(aes(x = album_release_year, y = value, group = 1)) +
+  geom_line() +
+  theme_bw()
+
+```
+
+]
+]
+
+
 ---
-## 
+
+## Ejercicio: características, según popularidad
+
+Queremos comparar las características de las bandas populares y poco populares
+
+- danceability
+- energy
+- valence
+- tempo
+- tempo 
+- duration_ms
+
+1) Convertir la variable popularidad en tramos, mediante quintiles (`ntile`)
+2) Calcular la media de las características para cada banda (`group_by` + `summarise`)
+3) Unir la información de características con la popularidad de la banda (`left_join`)
+4) Calcular la media a nivel en cada tramo de popularidad 
+5) Crear un gráfico de barras con los valores de las características, según tramo de popularidad (`ggplot2`)
+
+
+El *dataframe* *bandas_sample* contiene la información de popularidad
+
+El *dataframe* discografía contiene los datos de las bandas 
+
+
+
+---
+
+class: inverse center middle
+
+# Twitter
+
+```{r}
+
+library(twitteR)
+
+api_key <- "H5lNIrtXtvpANug0GLIq5Ixku"
+api_secret <- "MFIKmUiD1WnmzdmbUGyzdHSdVhz2gnmkxyI9l6ltvrnSSHni9H"
+
+access_token <- "1080454016398692352-20F1UGfSG4z8yuh8Xm7JVbQbu7OjhD"
+access_token_secret <- "ihnkkTchCrF84WHn86BXwt0t8N84EYCk0aBvob9mLI0um"
+options(httr_oauth_cache=TRUE)
+setup_twitter_oauth(consumer_key = api_key, 
+                    consumer_secret = api_secret,
+                    access_token = access_token, 
+                    access_secret = access_token_secret)
+
+```
+
+```{r}
+mios <- userTimeline("luisguillermosr", n = 2)
+
+```
+
+
+---
+
+
 
 ---
 
@@ -515,35 +709,10 @@ n_discos %>%
 
 Spotify es un caso particular de uso de APIs
 
-La idea es aprender la mecánica de las APIs
+Cada API tiene sus particularidades
 
----
+La idea de esta clase ha sido aprender la mecánica general de las APIs
 
-## En conclusión
-
-Hemos aprendido 
-
----
-
-
-```{r}
-#access_token
-
-# curl --request GET \
-#   --url 'https://api.spotify.com/v1/search?q=genre%3Arock&type=artist&market=CL&limit=2' \
-#   --header 'Authorization: Bearer BQAGYF-Hpx948A6IqmreUmmFb5RCPh-iTVwLXCvWe5aFhr6h-dTpph9nB89Elo9O9XeXXwTmZ8RwoGYmkkgGCEoOx7qj9dgeoQeVSsgwueaQvpM3oHA'
-
-
-# data <- GET(url = 'https://api.spotify.com/v1/search?q=genre%3Arock&type=artist&market=CL&limit=9&offset=991',
-#     add_headers(Authorization="Bearer BQAGYF-Hpx948A6IqmreUmmFb5RCPh-iTVwLXCvWe5aFhr6h-dTpph9nB89Elo9O9XeXXwTmZ8RwoGYmkkgGCEoOx7qj9dgeoQeVSsgwueaQvpM3oHA"))
-#library(jsonlite)
-# res <- fromJSON(content(data, as = "text", encoding = "UTF-8"), flatten = TRUE)
-# artists <- res$artists
-# artists$items$name
-```
-
-
----
 
 ---
 class: center, middle
