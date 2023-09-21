@@ -49,8 +49,7 @@ xaringanExtra::use_panelset()
 
 Uso de APIs para las ciencias sociales
 
-*Web scraping* para ~~la vida~~ las ciencias sociales 
-
+Caso específico de Spotify
 
 ---
 
@@ -67,29 +66,6 @@ Uso de APIs para las ciencias sociales
 
 <img src="imagenes/tractor.jpg" width="600" />
 ]
-
----
-
-## Produciendo datos
-
-gratis != fácil
-
---
-
-Las fuentes de datos no tradicionales y/o web muchas veces implican un arduo trabajo de captura y procesamiento
-
---
-
-Debemos entrenarnos para ser buenos productores de información
-
---
-
-Veremos 2 estrategias para recoger información
-
-- Manejo de APIs
-- *web scraping*
-
-### No debemos asustarnos si nos encontramos con tecnologías que no conocemos bien
 
 ---
 
@@ -236,7 +212,7 @@ Algunos ejemplos:
 
 --
 
-Revisaremos en detalle spotify y twitter
+Revisaremos en detalle spotify
 
 En la unidad de datos geoespaciales revisaremos *google places*
 
@@ -409,7 +385,7 @@ bandas_chilenas2 <-  get_genre_artists(genre = "rock", market = "CL", limit = 5,
 Cuando sobrepasamos el 1.000, obtenemos un error
 
 ```{r, error=TRUE}
-final <-  get_genre_artists(genre = "rock", market = "CL", limit = 2, offset = 1) # 999 + 2 = 1001  
+final <-  get_genre_artists(genre = "rock", market = "CL", limit = 2, offset = 999) # 999 + 2 = 1001  
 ```
 
 
@@ -453,7 +429,7 @@ secuencia <-  seq(0, 950, 50)
 ```
 
 
-```{r, eval=FALSE}
+```{r, eval=FALSE, echo=FALSE}
 # Bonus track: podemos resolverlo con map de manera muy compacta
 bandas_rock_df <- map(secuencia, ~get_genre_artists(genre = "rock", market = "CL", limit = 50, offset = .x)) %>% 
   bind_rows()
@@ -493,7 +469,7 @@ for (id in bandas_sample$id) {
 # Combinar todo en una tabla
 final <- datos %>% 
   bind_rows()
-write_csv(final, "data/muestra_mercado_chileno.csv")
+write_csv(final, "data/bandas_mercado_chileno_sample.csv")
 ```
 
 
@@ -530,7 +506,7 @@ artista
 
 ---
 
-## Código real
+## Código "real"
 
 
 ```{r, eval=FALSE}
@@ -541,7 +517,7 @@ for (id in bandas_sample$id) {
   # Atrapar errores
   out <- tryCatch(
     {
-      get_artist_audio_features(id, include_groups = "album")
+      get_artist_audio_features(id, include_groups = "album") # solo primeros 20 álbumes
     },
     error=function(cond) {
       message(paste("No albums found with artist_id", id))
@@ -557,7 +533,13 @@ for (id in bandas_sample$id) {
 Debemos dormir estratégicamente
 
 ```{r, eval=FALSE}
-Sys.sleep(1)
+# 5 segundos cada 50 requests
+if (n_requests %% 50 == 0) {
+    print("durmiendo")
+    Sys.sleep(5)
+}    
+      
+
 ```
 
 ---
@@ -569,7 +551,7 @@ Sys.sleep(1)
 
 ```{r, fig.height=5, fig.align='center'}
 bandas_sample <- read_feather("data/muestra_bandas.feather")
-discografia <- read_csv("data/muestra_mercado_chileno.csv")
+discografia <- read_csv("data/bandas_mercado_chileno_sample.csv")
 print(nrow(discografia))
 
 n_discos <- discografia %>% 
@@ -654,52 +636,19 @@ Queremos comparar las características de las bandas populares y poco populares
 - energy
 - valence
 - tempo
-- tempo 
 - duration_ms
 
-1) Convertir la variable popularidad en tramos, mediante quintiles (`ntile`)
-2) Calcular la media de las características para cada banda (`group_by` + `summarise`)
-3) Unir la información de características con la popularidad de la banda (`left_join`)
-4) Calcular la media a nivel en cada tramo de popularidad 
-5) Crear un gráfico de barras con los valores de las características, según tramo de popularidad (`ggplot2`)
+1. Convertir la variable popularidad en tramos, mediante quintiles (`mutate` + `ntile`)
+2. Calcular la media de las características para cada banda (`group_by` + `summarise`)
+3. Unir la información de características con la popularidad de la banda (`left_join`)
+4. Calcular la media a nivel en cada tramo de popularidad  (`group_by` + `summarise`)
+5. Crear un gráfico de barras con los valores de las características, según tramo de popularidad (`ggplot2`)
 
 
 El *dataframe* *bandas_sample* contiene la información de popularidad
 
 El *dataframe* discografía contiene los datos de las bandas 
 
-
-
----
-
-class: inverse center middle
-
-# Twitter
-
-```{r}
-
-library(twitteR)
-
-api_key <- "H5lNIrtXtvpANug0GLIq5Ixku"
-api_secret <- "MFIKmUiD1WnmzdmbUGyzdHSdVhz2gnmkxyI9l6ltvrnSSHni9H"
-
-access_token <- "1080454016398692352-20F1UGfSG4z8yuh8Xm7JVbQbu7OjhD"
-access_token_secret <- "ihnkkTchCrF84WHn86BXwt0t8N84EYCk0aBvob9mLI0um"
-options(httr_oauth_cache=TRUE)
-setup_twitter_oauth(consumer_key = api_key, 
-                    consumer_secret = api_secret,
-                    access_token = access_token, 
-                    access_secret = access_token_secret)
-
-```
-
-```{r}
-mios <- userTimeline("luisguillermosr", n = 2)
-
-```
-
-
----
 
 
 
