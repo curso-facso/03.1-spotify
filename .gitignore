@@ -5,3 +5,5 @@ ejercicios.pdf
 .Rproj.user
 .httr-oauth
 /data
+/venv
+.env

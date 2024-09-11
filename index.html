@@ -7,6 +7,7 @@
     <script src="04-extraccion-informacion_files/header-attrs/header-attrs.js"></script>
     <link href="04-extraccion-informacion_files/panelset/panelset.css" rel="stylesheet" />
     <script src="04-extraccion-informacion_files/panelset/panelset.js"></script>
+    <link href="04-extraccion-informacion_files/htmltools-fill/fill.css" rel="stylesheet" />
     <script src="04-extraccion-informacion_files/htmlwidgets/htmlwidgets.js"></script>
     <link href="04-extraccion-informacion_files/datatables-css/datatables-crosstalk.css" rel="stylesheet" />
     <script src="04-extraccion-informacion_files/datatables-binding/datatables.js"></script>
@@ -155,7 +156,7 @@ Estamos pidiendo todos los discos de Bruno Mars desde Spotify, usando curl desde
 
 
 
-```r
+``` r
 curl --request GET \
 --url https://api.spotify.com/v1/artists/0du5cEVh5yTK9QJze8zA0C/albums \
 --header 'Authorization: Bearer BQDV6qbwbL...AYc3Wja1fhyXVfbDZhnwGwXiSM4l1FZw7UoN12YtmSf0omuuBbH_rttJ7uzhFMuY'
@@ -169,7 +170,7 @@ En R podemos usar un paquete llamado httr, pero sigue siendo complejo
 
 
 
-```r
+``` r
 by_httr &lt;- GET(url = "https://api.spotify.com/v1/artists/0du5cEVh5yTK9QJze8zA0C/albums", 
              add_headers(Authorization="Bearer BQDV6qbwbLcun5HK6asPqYRWzvA....7UoN12YtmSf0omuuBbH_rttJ7uzhFMuY")
 )
@@ -184,7 +185,7 @@ by_httr &lt;- GET(url = "https://api.spotify.com/v1/artists/0du5cEVh5yTK9QJze8zA
 Afortunadamente, hay personas que han construído paquetes 😁
 
 
-```r
+``` r
 bruno_mars &lt;- get_artist_albums(id = "0du5cEVh5yTK9QJze8zA0C")
 ```
 
@@ -207,7 +208,7 @@ Algunos ejemplos:
 
 - youtube
 - google news
-- twitter
+- twitter (X)
 - spotify
 - google places
 
@@ -244,7 +245,7 @@ class: inverse center middle
 ## Primeros pasos
 
 
-```r
+``` r
 install.packages("spotifyr")
 ```
 
@@ -253,7 +254,7 @@ install.packages("spotifyr")
 Con nuestras credenciales debemos activar un *token* que dura **una hora**
 
 
-```r
+``` r
 library(spotifyr)
 #Crear token a partir de las credenciales
 access_token &lt;- get_spotify_access_token(client_id = Sys.getenv("SPOTIFY_CLIENT_ID"), 
@@ -288,12 +289,12 @@ Podemos ver el id de un artista mediante la aplicación de escritorio
 ## Discos de Bruno Mars
 
 
-```r
+``` r
 bruno_albums &lt;-  get_artist_albums("0du5cEVh5yTK9QJze8zA0C", limit = 50)
 ```
 
-<div class="datatables html-widget html-fill-item-overflow-hidden html-fill-item" id="htmlwidget-3fa93d20a1738da3cb5d" style="width:100%;height:auto;"></div>
-<script type="application/json" data-for="htmlwidget-3fa93d20a1738da3cb5d">{"x":{"filter":"none","vertical":false,"data":[["1","2","3","4","5","6","7","8","9","10","11","12","13","14","15","16","17","18","19","20","21","22","23","24","25","26","27","28","29","30","31","32","33","34","35","36","37","38","39","40","41","42","43","44","45","46","47","48","49","50"],["album","album","album","album","single","single","single","single","single","single","single","single","single","single","single","single","single","single","single","single","single","single","single","single","album","album","album","album","single","album","album","single","album","album","album","compilation","compilation","compilation","album","compilation","album","compilation","single","compilation","compilation","compilation","compilation","compilation","compilation","compilation"],["4VZ7jhV0wHpoNPCB7Vmiml","4PgleR09JVnm3zY1fW3XBA","58ufpQsJ1DS5kq4hhzQDiI","6J84szYCnMfzEcvIcfWMFL","6QKXGIgwWmWBMmIktMOchR","4rRB9bAIwawVcrdLXuq9Qu","4uoEruXjt0APvHaSqrwqPH","5a4sJJ3qjn6hqRsvm0Veso","7mkyc2BUahNfo0orKzqNGB","5AVEtKtguEa8sqYhSj3zFW","0yDiMZdbFwO5lGB9Dq5wlL","1onK6XeDccA2NW6SlzQMNK","1z4Zl2hcCiRyB4uIPeqEfr","6LD3J50OxLEQbAB8ahoj1S","2xclonI4faQWl6lhqecGM5","0219JhsyibMkftKsI94Mv1","3X801hUAmbUAHmatvmMhfA","5EA4kogB3cZr2qykFlZDYV","07OCQAUAQaZmKORKt2StFm","7yBnuW3SpMKy3EB9iU0C7p","2vf1K6KumbRZnRHa1JeKyD","4A0vJtV9ok7vmr9ursSKj8","54DNHFsfCa7nlQFWXMg7y3","7BzP09BlvvE4ioNgvdLrdm","3oIFxDIo2fwuk4lwCmFZCx","0pFydyko4Iw450abXlDPpp","7oA3n7CRInntyXA0GQiJsm","1aRkJ2n9HsHuyakKVXaMe6","11Bkx3E99vf0IlYPND61LJ","3aTuW4BtsyyyyQa9LKqj8n","5abCMGtyHwpOr9cEbwfP1P","1PruwGvQDfgh6CTSFWPNtn","5xqQtdlJUY7Fg4BMp13LrX","7kOivwbxDlUcVa4dCBCsWg","7apLPYT8szV1IqTxyVSy5P","0lRlbYQMtETkabg9fNSqAl","0Enbbg8VUylJt0X6VJS99V","3ehRRrkC0MAQ9ihHgxNPF8","0Nur9t7M0miEBoAnQ3rPv2","6tStLlLzITDvMdlmT79rbn","3QOQli73d2qHfw8Y5aS76R","2m9JIHRHfAHD8Yg5aChAt2","6oJPf4A0f047HhhANIFJVK","3AFToCrtdsqFxX6CdGdwzl","5jdzXYmv7zWMdoJzcXrFQ9","6iE4f7SmNoKRqm5yQBwyPl","0mp3U0ZysSeRlBLLylxayx","0LplRIGNE4ds9AmJ6w0qXa","4FVpFPHPAw8sBMyAPnEsrH","4Xn7Bb8dZ1zVdZXKts2nVl"],["An Evening With Silk Sonic","24K Magic","Unorthodox Jukebox","Doo-Wops &amp; Hooligans","Love's Train","Leave The Door Open (Live)","BLOW (with Chris Stapleton &amp; Bruno Mars)","Please Me","Wake Up in the Sky","Finesse (Remix) [feat. Cardi B]","Versace On The Floor (Bruno Mars vs. David Guetta)","24K Magic (R3hab Remix)","That's What I Like (feat. Gucci Mane) [Remix]","That's What I Like (Alan Walker Remix)","That's What I Like (PARTYNEXTDOOR Remix)","That's What I Like (BLVK JVCK Remix)","Versace on the Floor","24K Magic","Gorilla (feat. R. Kelly And Pharrell) [G-Mix]","Treasure Remix EP","Locked out of Heaven (Remix)","It Will Rain","The Grenade Sessions","Just the Way You Are (Remix)","No.6 Collaborations Project","Tha Carter IV (Complete Edition)","Summer Party Anthems","May 25th","Young, Wild &amp; Free (feat. Bruno Mars)","Curtain Call 2","Hell: The Sequel (Deluxe)","Billionaire (feat. Bruno Mars)","Evil Genius","Lazarus","B.o.B Presents: The Adventures of Bobby Ray","Mac and Devin Go To High School (Music From and Inspired By The Movie)","The Twilight Saga: Breaking Dawn - Part 1 (Original Motion Picture Soundtrack)","Rio 2 Music From The Motion Picture","I Am Music","100 Greatest Love Songs","Hot Summer Party Mix","I Hate You, I Love You","Uptown Funk (Remixes) (feat. Bruno Mars)","New Year’s Eve: 100 Uplifting Songs","2010s Hits","New Year's Eve - NYE 2018/2019","Melhores Músicas Internacionais 2023","Mother's Day Songs","Acoustic: The Collection","100 Greatest Motivation Songs"],[10,9,10,12,1,2,1,1,1,3,1,1,1,1,1,1,1,1,1,5,4,1,4,7,15,21,50,16,1,35,11,1,18,10,12,12,15,14,18,100,60,34,4,100,31,30,57,31,54,100]],"container":"<table class=\"display\">\n  <thead>\n    <tr>\n      <th> <\/th>\n      <th>album_type<\/th>\n      <th>id<\/th>\n      <th>name<\/th>\n      <th>total_tracks<\/th>\n    <\/tr>\n  <\/thead>\n<\/table>","options":{"pageLength":5,"dom":"p","columnDefs":[{"className":"dt-right","targets":4},{"orderable":false,"targets":0}],"order":[],"autoWidth":false,"orderClasses":false,"lengthMenu":[5,10,25,50,100]}},"evals":[],"jsHooks":[]}</script>
+<div class="datatables html-widget html-fill-item" id="htmlwidget-caa881cb05638115e448" style="width:100%;height:auto;"></div>
+<script type="application/json" data-for="htmlwidget-caa881cb05638115e448">{"x":{"filter":"none","vertical":false,"data":[["1","2","3","4","5","6","7","8","9","10","11","12","13","14","15","16","17","18","19","20","21","22","23","24","25","26","27","28","29","30","31","32","33","34","35","36","37","38","39","40","41","42","43","44","45","46","47","48","49","50"],["album","album","album","album","single","single","single","single","single","single","single","single","single","single","single","single","single","single","single","single","single","single","single","single","album","album","album","album","single","album","album","single","album","album","compilation","compilation","compilation","compilation","compilation","compilation","compilation","compilation","compilation","compilation","compilation","compilation","compilation","compilation","compilation","compilation"],["4VZ7jhV0wHpoNPCB7Vmiml","4PgleR09JVnm3zY1fW3XBA","58ufpQsJ1DS5kq4hhzQDiI","6J84szYCnMfzEcvIcfWMFL","4rRB9bAIwawVcrdLXuq9Qu","4uoEruXjt0APvHaSqrwqPH","5a4sJJ3qjn6hqRsvm0Veso","7mkyc2BUahNfo0orKzqNGB","5AVEtKtguEa8sqYhSj3zFW","0yDiMZdbFwO5lGB9Dq5wlL","1onK6XeDccA2NW6SlzQMNK","1z4Zl2hcCiRyB4uIPeqEfr","6LD3J50OxLEQbAB8ahoj1S","2xclonI4faQWl6lhqecGM5","0219JhsyibMkftKsI94Mv1","3X801hUAmbUAHmatvmMhfA","5EA4kogB3cZr2qykFlZDYV","07OCQAUAQaZmKORKt2StFm","7yBnuW3SpMKy3EB9iU0C7p","2vf1K6KumbRZnRHa1JeKyD","4A0vJtV9ok7vmr9ursSKj8","1JirxaiYwz8hAxAk38rkeH","54DNHFsfCa7nlQFWXMg7y3","7BzP09BlvvE4ioNgvdLrdm","3oIFxDIo2fwuk4lwCmFZCx","0pFydyko4Iw450abXlDPpp","5xqQtdlJUY7Fg4BMp13LrX","5abCMGtyHwpOr9cEbwfP1P","11Bkx3E99vf0IlYPND61LJ","1aRkJ2n9HsHuyakKVXaMe6","3aTuW4BtsyyyyQa9LKqj8n","1PruwGvQDfgh6CTSFWPNtn","7kOivwbxDlUcVa4dCBCsWg","7apLPYT8szV1IqTxyVSy5P","7oA3n7CRInntyXA0GQiJsm","0lRlbYQMtETkabg9fNSqAl","0Enbbg8VUylJt0X6VJS99V","3D5BaRZxngDIZP811L4p1N","5jdzXYmv7zWMdoJzcXrFQ9","5SX2ckmXPzTgWpWfOoTrn0","16vOvSLYIZO8xZOpBBQnBZ","3wn07z4XXQZsHyyGETCOT9","3QOQli73d2qHfw8Y5aS76R","1Cuu5JU4NyGzNzw3whVhKf","15mcffadrVSEPvmfdcxBy1","2NTw0F363GPU537jWfAPnJ","2m9JIHRHfAHD8Yg5aChAt2","55aDarji66T5sb3cWEpDWS","5tF0liYH21cLPPY8CtWprL","6iE4f7SmNoKRqm5yQBwyPl"],["An Evening With Silk Sonic","24K Magic","Unorthodox Jukebox","Doo-Wops &amp; Hooligans","Leave The Door Open (Live)","BLOW (with Chris Stapleton &amp; Bruno Mars)","Please Me","Wake Up in the Sky","Finesse (Remix) [feat. Cardi B]","Versace On The Floor (Bruno Mars vs. David Guetta)","24K Magic (R3hab Remix)","That's What I Like (feat. Gucci Mane) [Remix]","That's What I Like (Alan Walker Remix)","That's What I Like (PARTYNEXTDOOR Remix)","That's What I Like (BLVK JVCK Remix)","Versace on the Floor","24K Magic","Gorilla (feat. R. Kelly And Pharrell) [G-Mix]","Treasure Remix EP","Locked out of Heaven (Remix)","It Will Rain","The Grenade Remixes","The Grenade Sessions","Just the Way You Are (Remix)","No.6 Collaborations Project","Tha Carter IV (Complete Edition)","Evil Genius","Hell: The Sequel (Deluxe)","Young, Wild &amp; Free (feat. Bruno Mars)","May 25th","Curtain Call 2","Billionaire (feat. Bruno Mars)","Lazarus","B.o.B Presents: The Adventures of Bobby Ray","Summer Party Anthems","Mac and Devin Go To High School (Music From and Inspired By The Movie)","The Twilight Saga: Breaking Dawn - Part 1 (Original Motion Picture Soundtrack)","100 Greatest Driving Songs","2010s Hits","Top Hits 2010-2020","Major Lazer Essentials","100 Greatest R&amp;B","Hot Summer Party Mix","100 Greatest Running Songs","Ultimate Coronation Party","100 Greatest Party Songs","I Hate You, I Love You","Wedding Songs","Pool Party 2024 / Summer Hits","New Year's Eve - NYE 2018/2019"],[10,9,10,12,2,1,1,1,3,1,1,1,1,1,1,1,1,1,5,4,1,2,4,7,15,21,18,11,1,16,35,1,10,12,50,12,15,100,31,30,25,100,60,100,100,100,34,75,110,30]],"container":"<table class=\"display\">\n  <thead>\n    <tr>\n      <th> <\/th>\n      <th>album_type<\/th>\n      <th>id<\/th>\n      <th>name<\/th>\n      <th>total_tracks<\/th>\n    <\/tr>\n  <\/thead>\n<\/table>","options":{"pageLength":5,"dom":"p","columnDefs":[{"className":"dt-right","targets":4},{"orderable":false,"targets":0},{"name":" ","targets":0},{"name":"album_type","targets":1},{"name":"id","targets":2},{"name":"name","targets":3},{"name":"total_tracks","targets":4}],"order":[],"autoWidth":false,"orderClasses":false,"lengthMenu":[5,10,25,50,100]}},"evals":[],"jsHooks":[]}</script>
 
 
 ---
@@ -301,12 +302,12 @@ bruno_albums &lt;-  get_artist_albums("0du5cEVh5yTK9QJze8zA0C", limit = 50)
 ## Exploremos Unorthodox Jukebox
 
 
-```r
+``` r
 jukebox &lt;-  get_album_tracks("58ufpQsJ1DS5kq4hhzQDiI") # id del álbum
 ```
 
-<div class="datatables html-widget html-fill-item-overflow-hidden html-fill-item" id="htmlwidget-577eb4608378fdda752d" style="width:100%;height:auto;"></div>
-<script type="application/json" data-for="htmlwidget-577eb4608378fdda752d">{"x":{"filter":"none","vertical":false,"data":[["1","2","3","4","5","6","7","8","9","10"],[228720,233478,244493,178560,228573,213826,225026,207560,203973,132640],["3G5iN5QBqMeXx3uZPy8tgB","3w3y8KPTfNeOKPiqUTakBh","2ih2U8ttFzCjnQ5njF3SrR","55h7vJchibLdUkxdlX3fK7","30raivfq7rSt5nKltiHfzG","0nJW01T7XtvILxQgC5J7Wh","0inMKhbKWOTDA9UBUAKoU6","2tCPIp83mRXvVTytTAf1W4","6FPQabaldvKE5cjqRfY9Os","7lXOqE38eCr979gp27O5wr"],["Young Girls","Locked out of Heaven","Gorilla","Treasure","Moonshine","When I Was Your Man","Natalie","Show Me","Money Make Her Smile","If I Knew"]],"container":"<table class=\"display\">\n  <thead>\n    <tr>\n      <th> <\/th>\n      <th>duration_ms<\/th>\n      <th>id<\/th>\n      <th>name<\/th>\n    <\/tr>\n  <\/thead>\n<\/table>","options":{"pageLength":5,"dom":"p","columnDefs":[{"className":"dt-right","targets":1},{"orderable":false,"targets":0}],"order":[],"autoWidth":false,"orderClasses":false,"lengthMenu":[5,10,25,50,100]}},"evals":[],"jsHooks":[]}</script>
+<div class="datatables html-widget html-fill-item" id="htmlwidget-47839dd72ef089770f8e" style="width:100%;height:auto;"></div>
+<script type="application/json" data-for="htmlwidget-47839dd72ef089770f8e">{"x":{"filter":"none","vertical":false,"data":[["1","2","3","4","5","6","7","8","9","10"],[228720,233478,244493,178560,228573,213826,225026,207560,203973,132640],["3G5iN5QBqMeXx3uZPy8tgB","3w3y8KPTfNeOKPiqUTakBh","2ih2U8ttFzCjnQ5njF3SrR","55h7vJchibLdUkxdlX3fK7","30raivfq7rSt5nKltiHfzG","0nJW01T7XtvILxQgC5J7Wh","0inMKhbKWOTDA9UBUAKoU6","2tCPIp83mRXvVTytTAf1W4","6FPQabaldvKE5cjqRfY9Os","7lXOqE38eCr979gp27O5wr"],["Young Girls","Locked out of Heaven","Gorilla","Treasure","Moonshine","When I Was Your Man","Natalie","Show Me","Money Make Her Smile","If I Knew"]],"container":"<table class=\"display\">\n  <thead>\n    <tr>\n      <th> <\/th>\n      <th>duration_ms<\/th>\n      <th>id<\/th>\n      <th>name<\/th>\n    <\/tr>\n  <\/thead>\n<\/table>","options":{"pageLength":5,"dom":"p","columnDefs":[{"className":"dt-right","targets":1},{"orderable":false,"targets":0},{"name":" ","targets":0},{"name":"duration_ms","targets":1},{"name":"id","targets":2},{"name":"name","targets":3}],"order":[],"autoWidth":false,"orderClasses":false,"lengthMenu":[5,10,25,50,100]}},"evals":[],"jsHooks":[]}</script>
 
 ---
 
@@ -315,12 +316,12 @@ jukebox &lt;-  get_album_tracks("58ufpQsJ1DS5kq4hhzQDiI") # id del álbum
 La API nos devuelve características del *track*
 
 
-```r
+``` r
 treasure &lt;- get_track_audio_features("55h7vJchibLdUkxdlX3fK7")
 ```
 
-<div class="datatables html-widget html-fill-item-overflow-hidden html-fill-item" id="htmlwidget-66364ea27a5aa8f4aa15" style="width:100%;height:auto;"></div>
-<script type="application/json" data-for="htmlwidget-66364ea27a5aa8f4aa15">{"x":{"filter":"none","vertical":false,"data":[["1"],[0.874],[0.6919999999999999],[5],[-5.28],[0],[0.0431],[0.0412],[7.24e-05],[0.324],[0.9370000000000001],[116.017],[178560]],"container":"<table class=\"display\">\n  <thead>\n    <tr>\n      <th> <\/th>\n      <th>danceability<\/th>\n      <th>energy<\/th>\n      <th>key<\/th>\n      <th>loudness<\/th>\n      <th>mode<\/th>\n      <th>speechiness<\/th>\n      <th>acousticness<\/th>\n      <th>instrumentalness<\/th>\n      <th>liveness<\/th>\n      <th>valence<\/th>\n      <th>tempo<\/th>\n      <th>duration_ms<\/th>\n    <\/tr>\n  <\/thead>\n<\/table>","options":{"pageLength":5,"dom":"p","columnDefs":[{"className":"dt-right","targets":[1,2,3,4,5,6,7,8,9,10,11,12]},{"orderable":false,"targets":0}],"order":[],"autoWidth":false,"orderClasses":false,"lengthMenu":[5,10,25,50,100]}},"evals":[],"jsHooks":[]}</script>
+<div class="datatables html-widget html-fill-item" id="htmlwidget-c8c4d6108245f121a95f" style="width:100%;height:auto;"></div>
+<script type="application/json" data-for="htmlwidget-c8c4d6108245f121a95f">{"x":{"filter":"none","vertical":false,"data":[["1"],[0.874],[0.6919999999999999],[5],[-5.28],[0],[0.0431],[0.0412],[7.24e-05],[0.324],[0.9370000000000001],[116.017],[178560]],"container":"<table class=\"display\">\n  <thead>\n    <tr>\n      <th> <\/th>\n      <th>danceability<\/th>\n      <th>energy<\/th>\n      <th>key<\/th>\n      <th>loudness<\/th>\n      <th>mode<\/th>\n      <th>speechiness<\/th>\n      <th>acousticness<\/th>\n      <th>instrumentalness<\/th>\n      <th>liveness<\/th>\n      <th>valence<\/th>\n      <th>tempo<\/th>\n      <th>duration_ms<\/th>\n    <\/tr>\n  <\/thead>\n<\/table>","options":{"pageLength":5,"dom":"p","columnDefs":[{"className":"dt-right","targets":[1,2,3,4,5,6,7,8,9,10,11,12]},{"orderable":false,"targets":0},{"name":" ","targets":0},{"name":"danceability","targets":1},{"name":"energy","targets":2},{"name":"key","targets":3},{"name":"loudness","targets":4},{"name":"mode","targets":5},{"name":"speechiness","targets":6},{"name":"acousticness","targets":7},{"name":"instrumentalness","targets":8},{"name":"liveness","targets":9},{"name":"valence","targets":10},{"name":"tempo","targets":11},{"name":"duration_ms","targets":12}],"order":[],"autoWidth":false,"orderClasses":false,"lengthMenu":[5,10,25,50,100]}},"evals":[],"jsHooks":[]}</script>
 
 ---
 
@@ -329,15 +330,15 @@ treasure &lt;- get_track_audio_features("55h7vJchibLdUkxdlX3fK7")
 Todos los *tracks* de *Foo Fighters*, *Shakira* y *Slayer*
 
 
-```r
+``` r
 foo_fighters &lt;-  get_artist_audio_features("7jy3rLJdDQY21OgRLCZ9sD", include_groups = "album")
 shakira &lt;-  get_artist_audio_features("0EmeFodog0BfCgMzAIvKQp", include_groups = "album")
 slayer &lt;-  get_artist_audio_features("1IQ2e1buppatiN1bxUVkrk", include_groups = "album")
 full &lt;- bind_rows(foo_fighters, shakira, slayer)
 ```
 
-<div class="plotly html-widget html-fill-item-overflow-hidden html-fill-item" id="htmlwidget-d16a3b2b55f476923c42" style="width:70%;height:360px;"></div>
-<script type="application/json" data-for="htmlwidget-d16a3b2b55f476923c42">{"x":{"data":[{"orientation":"v","width":[0.30000000000000004,0.30000000000000027,0.29999999999999982],"base":[0,0,0],"x":[0.69999999999999996,1.7,2.7000000000000002],"y":[0.45350295857988165,0.65447297297297302,0.29412857142857141],"text":["artist_name: Foo Fighters<br />value: 0.4535030<br />indicator: danceability","artist_name: Shakira<br />value: 0.6544730<br />indicator: danceability","artist_name: Slayer<br />value: 0.2941286<br />indicator: danceability"],"type":"bar","textposition":"none","marker":{"autocolorscale":false,"color":"rgba(248,118,109,1)","line":{"width":1.8897637795275593,"color":"transparent"}},"name":"danceability","legendgroup":"danceability","showlegend":true,"xaxis":"x","yaxis":"y","hoverinfo":"text","frame":null},{"orientation":"v","width":[0.29999999999999993,0.29999999999999982,0.29999999999999982],"base":[0,0,0],"x":[1,2,3],"y":[0.72912189349112422,0.73683378378378384,0.96254901960784311],"text":["artist_name: Foo Fighters<br />value: 0.7291219<br />indicator: energy","artist_name: Shakira<br />value: 0.7368338<br />indicator: energy","artist_name: Slayer<br />value: 0.9625490<br />indicator: energy"],"type":"bar","textposition":"none","marker":{"autocolorscale":false,"color":"rgba(0,186,56,1)","line":{"width":1.8897637795275593,"color":"transparent"}},"name":"energy","legendgroup":"energy","showlegend":true,"xaxis":"x","yaxis":"y","hoverinfo":"text","frame":null},{"orientation":"v","width":[0.29999999999999982,0.29999999999999982,0.29999999999999982],"base":[0,0,0],"x":[1.3,2.2999999999999998,3.2999999999999998],"y":[0.41784082840236686,0.5640175675675676,0.17652857142857142],"text":["artist_name: Foo Fighters<br />value: 0.4178408<br />indicator: valence","artist_name: Shakira<br />value: 0.5640176<br />indicator: valence","artist_name: Slayer<br />value: 0.1765286<br />indicator: valence"],"type":"bar","textposition":"none","marker":{"autocolorscale":false,"color":"rgba(97,156,255,1)","line":{"width":1.8897637795275593,"color":"transparent"}},"name":"valence","legendgroup":"valence","showlegend":true,"xaxis":"x","yaxis":"y","hoverinfo":"text","frame":null}],"layout":{"margin":{"t":26.228310502283108,"r":7.3059360730593621,"b":25.570776255707766,"l":34.33789954337901},"plot_bgcolor":"rgba(255,255,255,1)","paper_bgcolor":"rgba(255,255,255,1)","font":{"color":"rgba(0,0,0,1)","family":"","size":14.611872146118724},"xaxis":{"domain":[0,1],"automargin":true,"type":"linear","autorange":false,"range":[0.40000000000000002,3.6000000000000001],"tickmode":"array","ticktext":["Foo Fighters","Shakira","Slayer"],"tickvals":[1,2,3],"categoryorder":"array","categoryarray":["Foo Fighters","Shakira","Slayer"],"nticks":null,"ticks":"outside","tickcolor":"rgba(51,51,51,1)","ticklen":3.6529680365296811,"tickwidth":0.66417600664176002,"showticklabels":true,"tickfont":{"color":"rgba(77,77,77,1)","family":"","size":11.68949771689498},"tickangle":-0,"showline":false,"linecolor":null,"linewidth":0,"showgrid":true,"gridcolor":"rgba(235,235,235,1)","gridwidth":0.66417600664176002,"zeroline":false,"anchor":"y","title":{"text":"","font":{"color":null,"family":null,"size":0}},"hoverformat":".2f"},"yaxis":{"domain":[0,1],"automargin":true,"type":"linear","autorange":false,"range":[-0.048127450980392159,1.0106764705882352],"tickmode":"array","ticktext":["0.00","0.25","0.50","0.75","1.00"],"tickvals":[0,0.25,0.5,0.75,1],"categoryorder":"array","categoryarray":["0.00","0.25","0.50","0.75","1.00"],"nticks":null,"ticks":"outside","tickcolor":"rgba(51,51,51,1)","ticklen":3.6529680365296811,"tickwidth":0.66417600664176002,"showticklabels":true,"tickfont":{"color":"rgba(77,77,77,1)","family":"","size":11.689497716894984},"tickangle":-0,"showline":false,"linecolor":null,"linewidth":0,"showgrid":true,"gridcolor":"rgba(235,235,235,1)","gridwidth":0.66417600664176002,"zeroline":false,"anchor":"x","title":{"text":"","font":{"color":null,"family":null,"size":0}},"hoverformat":".2f"},"shapes":[{"type":"rect","fillcolor":"transparent","line":{"color":"rgba(51,51,51,1)","width":0.66417600664176002,"linetype":"solid"},"yref":"paper","xref":"paper","x0":0,"x1":1,"y0":0,"y1":1}],"showlegend":true,"legend":{"bgcolor":"rgba(255,255,255,1)","bordercolor":"transparent","borderwidth":1.8897637795275593,"font":{"color":"rgba(0,0,0,1)","family":"","size":11.68949771689498},"title":{"text":"indicator","font":{"color":"rgba(0,0,0,1)","family":"","size":14.611872146118724}}},"hovermode":"closest","barmode":"relative"},"config":{"doubleClick":"reset","modeBarButtonsToAdd":["hoverclosest","hovercompare"],"showSendToCloud":false},"source":"A","attrs":{"139867dda05e":{"x":{},"y":{},"fill":{},"type":"bar"}},"cur_data":"139867dda05e","visdat":{"139867dda05e":["function (y) ","x"]},"highlight":{"on":"plotly_click","persistent":false,"dynamic":false,"selectize":false,"opacityDim":0.20000000000000001,"selected":{"opacity":1},"debounce":0},"shinyEvents":["plotly_hover","plotly_click","plotly_selected","plotly_relayout","plotly_brushed","plotly_brushing","plotly_clickannotation","plotly_doubleclick","plotly_deselect","plotly_afterplot","plotly_sunburstclick"],"base_url":"https://plot.ly"},"evals":[],"jsHooks":[]}</script>
+<div class="plotly html-widget html-fill-item" id="htmlwidget-a3f95008086e1051b97a" style="width:70%;height:360px;"></div>
+<script type="application/json" data-for="htmlwidget-a3f95008086e1051b97a">{"x":{"data":[{"orientation":"v","width":[0.30000000000000004,0.30000000000000027,0.29999999999999982],"base":[0,0,0],"x":[0.69999999999999996,1.7,2.7000000000000002],"y":[0.45350295857988165,0.66086614173228342,0.29412857142857141],"text":["artist_name: Foo Fighters<br />value: 0.4535030<br />indicator: danceability","artist_name: Shakira<br />value: 0.6608661<br />indicator: danceability","artist_name: Slayer<br />value: 0.2941286<br />indicator: danceability"],"type":"bar","textposition":"none","marker":{"autocolorscale":false,"color":"rgba(248,118,109,1)","line":{"width":1.8897637795275593,"color":"transparent"}},"name":"danceability","legendgroup":"danceability","showlegend":true,"xaxis":"x","yaxis":"y","hoverinfo":"text","frame":null},{"orientation":"v","width":[0.29999999999999993,0.29999999999999982,0.29999999999999982],"base":[0,0,0],"x":[1,2,3],"y":[0.72912189349112422,0.73126023622047243,0.96254901960784311],"text":["artist_name: Foo Fighters<br />value: 0.7291219<br />indicator: energy","artist_name: Shakira<br />value: 0.7312602<br />indicator: energy","artist_name: Slayer<br />value: 0.9625490<br />indicator: energy"],"type":"bar","textposition":"none","marker":{"autocolorscale":false,"color":"rgba(0,186,56,1)","line":{"width":1.8897637795275593,"color":"transparent"}},"name":"energy","legendgroup":"energy","showlegend":true,"xaxis":"x","yaxis":"y","hoverinfo":"text","frame":null},{"orientation":"v","width":[0.29999999999999982,0.29999999999999982,0.29999999999999982],"base":[0,0,0],"x":[1.3,2.2999999999999998,3.2999999999999998],"y":[0.41784082840236686,0.56980669291338581,0.17652857142857142],"text":["artist_name: Foo Fighters<br />value: 0.4178408<br />indicator: valence","artist_name: Shakira<br />value: 0.5698067<br />indicator: valence","artist_name: Slayer<br />value: 0.1765286<br />indicator: valence"],"type":"bar","textposition":"none","marker":{"autocolorscale":false,"color":"rgba(97,156,255,1)","line":{"width":1.8897637795275593,"color":"transparent"}},"name":"valence","legendgroup":"valence","showlegend":true,"xaxis":"x","yaxis":"y","hoverinfo":"text","frame":null}],"layout":{"margin":{"t":26.228310502283108,"r":7.3059360730593621,"b":25.570776255707766,"l":34.33789954337901},"plot_bgcolor":"rgba(255,255,255,1)","paper_bgcolor":"rgba(255,255,255,1)","font":{"color":"rgba(0,0,0,1)","family":"","size":14.611872146118724},"xaxis":{"domain":[0,1],"automargin":true,"type":"linear","autorange":false,"range":[0.40000000000000002,3.6000000000000001],"tickmode":"array","ticktext":["Foo Fighters","Shakira","Slayer"],"tickvals":[1,2,3],"categoryorder":"array","categoryarray":["Foo Fighters","Shakira","Slayer"],"nticks":null,"ticks":"outside","tickcolor":"rgba(51,51,51,1)","ticklen":3.6529680365296811,"tickwidth":0.66417600664176002,"showticklabels":true,"tickfont":{"color":"rgba(77,77,77,1)","family":"","size":11.68949771689498},"tickangle":-0,"showline":false,"linecolor":null,"linewidth":0,"showgrid":true,"gridcolor":"rgba(235,235,235,1)","gridwidth":0.66417600664176002,"zeroline":false,"anchor":"y","title":{"text":"","font":{"color":null,"family":null,"size":0}},"hoverformat":".2f"},"yaxis":{"domain":[0,1],"automargin":true,"type":"linear","autorange":false,"range":[-0.048127450980392159,1.0106764705882352],"tickmode":"array","ticktext":["0.00","0.25","0.50","0.75","1.00"],"tickvals":[0,0.25,0.5,0.75,1],"categoryorder":"array","categoryarray":["0.00","0.25","0.50","0.75","1.00"],"nticks":null,"ticks":"outside","tickcolor":"rgba(51,51,51,1)","ticklen":3.6529680365296811,"tickwidth":0.66417600664176002,"showticklabels":true,"tickfont":{"color":"rgba(77,77,77,1)","family":"","size":11.689497716894984},"tickangle":-0,"showline":false,"linecolor":null,"linewidth":0,"showgrid":true,"gridcolor":"rgba(235,235,235,1)","gridwidth":0.66417600664176002,"zeroline":false,"anchor":"x","title":{"text":"","font":{"color":null,"family":null,"size":0}},"hoverformat":".2f"},"shapes":[{"type":"rect","fillcolor":"transparent","line":{"color":"rgba(51,51,51,1)","width":0.66417600664176002,"linetype":"solid"},"yref":"paper","xref":"paper","x0":0,"x1":1,"y0":0,"y1":1}],"showlegend":true,"legend":{"bgcolor":"rgba(255,255,255,1)","bordercolor":"transparent","borderwidth":1.8897637795275593,"font":{"color":"rgba(0,0,0,1)","family":"","size":11.68949771689498},"title":{"text":"indicator","font":{"color":"rgba(0,0,0,1)","family":"","size":14.611872146118724}}},"hovermode":"closest","barmode":"relative"},"config":{"doubleClick":"reset","modeBarButtonsToAdd":["hoverclosest","hovercompare"],"showSendToCloud":false},"source":"A","attrs":{"6a8a3704395d7":{"x":{},"y":{},"fill":{},"type":"bar"}},"cur_data":"6a8a3704395d7","visdat":{"6a8a3704395d7":["function (y) ","x"]},"highlight":{"on":"plotly_click","persistent":false,"dynamic":false,"selectize":false,"opacityDim":0.20000000000000001,"selected":{"opacity":1},"debounce":0},"shinyEvents":["plotly_hover","plotly_click","plotly_selected","plotly_relayout","plotly_brushed","plotly_brushing","plotly_clickannotation","plotly_doubleclick","plotly_deselect","plotly_afterplot","plotly_sunburstclick"],"base_url":"https://plot.ly"},"evals":[],"jsHooks":[]}</script>
 
 
 ---
@@ -362,7 +363,7 @@ En general, las APIs tienen mecanismos para no solicitar toda la información en
 
 
 
-```r
+``` r
 bandas_chilenas1 &lt;-  get_genre_artists(genre = "rock", market = "CL", limit = 5, offset = 0) # 0 al 4  
 bandas_chilenas2 &lt;-  get_genre_artists(genre = "rock", market = "CL", limit = 5, offset = 5) # 5 al 9  
 ```
@@ -372,7 +373,7 @@ bandas_chilenas2 &lt;-  get_genre_artists(genre = "rock", market = "CL", limit =
 Cuando sobrepasamos el 1.000, obtenemos un error
 
 
-```r
+``` r
 final &lt;-  get_genre_artists(genre = "rock", market = "CL", limit = 2, offset = 999) # 999 + 2 = 1001  
 ```
 
@@ -417,7 +418,7 @@ Almacenar la información en una lista puede ser buena idea
 *Pista:* Podría servirles esta secuencia
 
 
-```r
+``` r
 secuencia &lt;-  seq(0, 950, 50)
 ```
 
@@ -432,7 +433,7 @@ secuencia &lt;-  seq(0, 950, 50)
 **Muestra de 150 bandas**
 
 
-```r
+``` r
 set.seed(123)
 library(feather)
 bandas_sample &lt;-  bandas_rock_df %&gt;% 
@@ -447,7 +448,7 @@ Ahora buscamos la discografía para todas estas bandas
 
 
 
-```r
+``` r
 datos &lt;- list()
 i &lt;- 1 # iterador
 # Para cada banda
@@ -480,7 +481,7 @@ write_csv(final, "data/bandas_mercado_chileno_sample.csv")
 La función `get_artist_audio_features`, internamente, hace muchos *requests*
 
 
-```r
+``` r
 # para cada artista
 artista
   # Busca sus álbumes
@@ -501,7 +502,7 @@ artista
 
 
 
-```r
+``` r
 datos &lt;- list()
 i &lt;- 1 # iterador
 # Para cada banda
@@ -524,7 +525,7 @@ for (id in bandas_sample$id) {
 Debemos dormir estratégicamente
 
 
-```r
+``` r
 # 5 segundos cada 50 requests
 if (n_requests %% 50 == 0) {
     print("durmiendo")
@@ -540,7 +541,7 @@ if (n_requests %% 50 == 0) {
 .panel[.panel-name[álbumes]
 
 
-```r
+``` r
 bandas_sample &lt;- read_feather("data/muestra_bandas.feather")
 discografia &lt;- read_csv("data/bandas_mercado_chileno_sample.csv")
 print(nrow(discografia))
@@ -550,7 +551,7 @@ print(nrow(discografia))
 ## [1] 37853
 ```
 
-```r
+``` r
 n_discos &lt;- discografia %&gt;% 
   filter(album_release_year &gt; 0 &amp; album_release_year &lt; 2023) %&gt;% 
   group_by(album_release_year, album_id) %&gt;% 
@@ -574,7 +575,7 @@ n_discos %&gt;%
 .panel[.panel-name[características]
 
 
-```r
+``` r
 discografia_long &lt;-  discografia %&gt;% 
   filter(album_release_year &gt; 0 ) %&gt;% 
   group_by(album_release_year) %&gt;%
@@ -598,7 +599,7 @@ discografia_long %&gt;%
 .panel[.panel-name[tempo]
 
 
-```r
+``` r
 discografia_long %&gt;% 
   filter(album_release_year &lt; 2023) %&gt;% 
   filter(var == "tempo") %&gt;% 
@@ -616,7 +617,7 @@ discografia_long %&gt;%
 .panel[.panel-name[duración]
 
 
-```r
+``` r
 discografia_long %&gt;% 
   filter(album_release_year &lt; 2023) %&gt;% 
   filter(var == "duration_ms") %&gt;% 
@@ -655,18 +656,311 @@ El *dataframe* *bandas_sample* contiene la información de popularidad
 El *dataframe* discografía contiene los datos de las bandas 
 
 
+---
 
+class: inverse center middle
+
+# reddit
+
+---
+
+## API Reddit
+
+.center[
+&lt;img src="imagenes/reddit-logo.png" width="400" /&gt;
+]
+
+--
+
+[Aquí](https://www.reddit.com/dev/api/oauth) hay documentación de su API
+
+--
+
+La documentación no es buena 😥
+
+---
+
+## Praw
+
+Usaremos **PRAW** (Python Reddit API Wrapper) de python
+
+--
+
+Es mucho más fácil que usar directamente la API 😀
+
+[Aquí](https://praw.readthedocs.io/en/stable/index.html#) está la documentación
+
+
+---
+
+## Primeros pasos
+
+Debemos tener una cuenta en reddit e inscribir una aplicación
+
+[Aquí](https://rymur.github.io/setup) están las instrucciones para crear una app
+
+--
+
+.center[
+&lt;img src="imagenes/app-creation.png" width="600" /&gt;
+]
+
+
+
+---
+
+## Autenticación con PRAW 1
+
+
+
+``` python
+import praw 
+import pandas as pd # para manipulación de dataframes
+from dotenv import load_dotenv # cargar variables de ambiente
+import os # cargar variables de ambiente
+
+load_dotenv()
+```
+
+```
+## True
+```
+
+``` python
+
+client_id = os.getenv('CLIENT_ID')
+client_secret = os.getenv('CLIENT_SECRET')
+username = os.getenv('USERNAME')
+password = os.getenv('PASSWORD')
+user_agent = os.getenv('USER_AGENT')
+auth_url = "https://www.reddit.com/api/v1/access_token"
+```
+
+---
+
+## Autenticación con PRAW 2
+
+La función Reddit del praw hace la autenticación
+
+
+``` python
+reddit = praw.Reddit(
+    client_id=client_id,
+    client_secret=client_secret,
+    user_agent=user_agent
+)
+```
+
+---
+## Descargando datos 1
+
+Entramos al subreddit *bikepacking* y extraemos las dos últimas publicaciones
+
+
+``` python
+for submission in reddit.subreddit("bikepacking").new(limit = 2):
+    print(submission.title)
+```
+
+```
+## Aluminum / alloy fully rigids? 
+## Overnighter on the New River Trail. 100 miles round trip. A great spot if you hate hills!
+```
+
+---
+
+## Descargando datos 2
+
+Contamos con varios métodos
+
+- new
+- hot
+- top
+- random
+- controversial
+- rising
+
+
+``` python
+for submission in reddit.subreddit("Rlanguage").new(limit = 2):
+    print(submission.fullname, submission.title)
+```
+
+```
+## t3_1dnlhvn Struggling with abline() function 
+## t3_1dnkhug Mentor wanted
+```
+
+
+
+---
+
+## Quiero extraer más publicaciones
+
+Usamos el subreddit *Rlanguage* y no ponemos límite
+
+
+``` python
+posts = []
+for submission in reddit.subreddit("Rlanguage").top(limit = None):
+    data =  [submission.id, submission.title, submission.selftext, submission.score ]
+    posts.append(data)
+
+df_r = pd.DataFrame(posts, columns=['id', 'title', 'selfttext', "score"])
+```
+
+
+
+
+---
+
+## Límite de la API
+
+La API no nos deja descargar más de 1.000 comentarios
+
+
+``` python
+df_r.shape
+```
+
+```
+## (987, 4)
+```
+
+
+---
+
+## Podemos ir a buscar más atrás
+
+Fijamos varias ventanas de tiempo
+
+
+``` python
+time_filters = ['day', 'week', 'month', 'year', 'all']
+posts = []
+subreddit = reddit.subreddit('Rlanguage')
+
+# Para cada ventana de tiempo
+for time_filter in time_filters:
+    # Extraemos los 1.000 primeros mensajes     
+    submissions = subreddit.top(time_filter=time_filter, limit=1000)
+    for submission in submissions:
+        data =  [submission.fullname, submission.title, submission.selftext, submission.score ]
+        posts.append(data)
+
+df_r = pd.DataFrame(posts, columns=['id', 'title', 'selfttext', "score"])
+```
+
+
+
+
+
+
+---
+
+## Resultado
+
+Obtenemos un poco más, pero... 
+
+
+``` python
+df_r.shape
+```
+
+```
+## (1971, 4)
+```
+
+--
+
+... al mismo tiempo tenemos duplicados
+
+
+``` python
+import numpy as np
+len(np.unique(df_r.id))
+```
+
+```
+## 1870
+```
+
+---
+
+## Probemos con comentarios de python
+
+
+``` python
+time_filters = ['day', 'week', 'month', 'year', 'all']
+posts = []
+subreddit = reddit.subreddit('Python')
+
+# Para cada ventana de tiempo
+for time_filter in time_filters:
+    # Extraemos los 1.000 primeros mensajes     
+    submissions = subreddit.top(time_filter=time_filter, limit=1000)
+    for submission in submissions:
+        data =  [submission.fullname, submission.title, submission.selftext, submission.score ]
+        posts.append(data)
+
+df_python = pd.DataFrame(posts, columns=['id', 'title', 'selfttext', "score"])
+```
+
+
+
+
+
+
+
+
+``` python
+print(df_python.shape)
+```
+
+```
+## (2252, 4)
+```
+
+``` python
+print(len(np.unique(df_python.id)))
+```
+
+```
+## 2177
+```
+
+---
+## Comparemos
+
+
+<div class="datatables html-widget html-fill-item" id="htmlwidget-cc73320730ff19261f41" style="width:100%;height:auto;"></div>
+<script type="application/json" data-for="htmlwidget-cc73320730ff19261f41">{"x":{"filter":"none","vertical":false,"data":[["1","2","3","4","5","6","7","8","9","10"],["python","made","using","code","library","r","data","help","package","using"],[1168,236,168,132,80,891,205,129,124,121],["python","python","python","python","python","r","r","r","r","r"]],"container":"<table class=\"display\">\n  <thead>\n    <tr>\n      <th> <\/th>\n      <th>feature<\/th>\n      <th>frequency<\/th>\n      <th>group<\/th>\n    <\/tr>\n  <\/thead>\n<\/table>","options":{"columnDefs":[{"className":"dt-right","targets":2},{"orderable":false,"targets":0},{"name":" ","targets":0},{"name":"feature","targets":1},{"name":"frequency","targets":2},{"name":"group","targets":3}],"order":[],"autoWidth":false,"orderClasses":false}},"evals":[],"jsHooks":[]}</script>
+
+---
+
+## Idea
+
+Podemos planificar descargas periódicas
+
+Ejemplo: Descargar una vez a la semana durante 2 meses
+
+Así, podemos descargar una gran cantidad de información
 
 ---
 
 ## En resumen
 
-Spotify es un caso particular de uso de APIs
+*Spotify* y *Reddit* son casos particulares de uso de APIs
 
 Cada API tiene sus particularidades
 
 La idea de esta clase ha sido aprender la mecánica general de las APIs
 
+--
+
+**En la vida real, muchas veces no contamos con paquetes**
+
+**Y tenemos que relacionarnos directamente con los *endpoints* **
 
 ---
 class: center, middle

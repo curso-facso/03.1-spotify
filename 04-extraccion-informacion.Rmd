@@ -206,7 +206,7 @@ Algunos ejemplos:
 
 - youtube
 - google news
-- twitter
+- twitter (X)
 - spotify
 - google places
 
@@ -650,18 +650,310 @@ El *dataframe* *bandas_sample* contiene la información de popularidad
 El *dataframe* discografía contiene los datos de las bandas 
 
 
+---
 
+class: inverse center middle
+
+# reddit
+
+---
+
+## API Reddit
+
+.center[
+<img src="imagenes/reddit-logo.png" width="400" />
+]
+
+--
+
+[Aquí](https://www.reddit.com/dev/api/oauth) hay documentación de su API
+
+--
+
+La documentación no es buena 😥
+
+---
+
+## Praw
+
+Usaremos **PRAW** (Python Reddit API Wrapper) de python
+
+--
+
+Es mucho más fácil que usar directamente la API 😀
+
+[Aquí](https://praw.readthedocs.io/en/stable/index.html#) está la documentación
+
+
+---
+
+## Primeros pasos
+
+Debemos tener una cuenta en reddit e inscribir una aplicación
+
+[Aquí](https://rymur.github.io/setup) están las instrucciones para crear una app
+
+--
+
+.center[
+<img src="imagenes/app-creation.png" width="600" />
+]
+
+
+
+---
+
+## Autenticación con PRAW 1
+
+
+```{python, message = F, warning = FALSE}
+
+import praw 
+import pandas as pd # para manipulación de dataframes
+from dotenv import load_dotenv # cargar variables de ambiente
+import os # cargar variables de ambiente
+
+load_dotenv()
+
+client_id = os.getenv('CLIENT_ID')
+client_secret = os.getenv('CLIENT_SECRET')
+username = os.getenv('USERNAME')
+password = os.getenv('PASSWORD')
+user_agent = os.getenv('USER_AGENT')
+auth_url = "https://www.reddit.com/api/v1/access_token"
+
+```
+
+---
+
+## Autenticación con PRAW 2
+
+La función Reddit del praw hace la autenticación
+
+```{python}
+reddit = praw.Reddit(
+    client_id=client_id,
+    client_secret=client_secret,
+    user_agent=user_agent
+)
+```
+
+---
+## Descargando datos 1
+
+Entramos al subreddit *bikepacking* y extraemos las dos últimas publicaciones
+
+```{python}
+for submission in reddit.subreddit("bikepacking").new(limit = 2):
+    print(submission.title)
+```
+
+---
+
+## Descargando datos 2
+
+Contamos con varios métodos
+
+- new
+- hot
+- top
+- random
+- controversial
+- rising
+
+```{python}
+for submission in reddit.subreddit("Rlanguage").new(limit = 2):
+    print(submission.fullname, submission.title)
+```
+
+
+
+---
+
+## Quiero extraer más publicaciones
+
+Usamos el subreddit *Rlanguage* y no ponemos límite
+
+```{python, eval = FALSE}
+posts = []
+for submission in reddit.subreddit("Rlanguage").top(limit = None):
+    data =  [submission.id, submission.title, submission.selftext, submission.score ]
+    posts.append(data)
+
+df_r = pd.DataFrame(posts, columns=['id', 'title', 'selfttext', "score"])
+```
+
+```{python, echo = FALSE}
+df_r = pd.read_parquet("data/r_submissions.parquet")
+
+```
+
+
+---
+
+## Límite de la API
+
+La API no nos deja descargar más de 1.000 comentarios
+
+```{python}
+df_r.shape
+```
+
+
+---
+
+## Podemos ir a buscar más atrás
+
+Fijamos varias ventanas de tiempo
+
+```{python, eval = FALSE}
+
+time_filters = ['day', 'week', 'month', 'year', 'all']
+posts = []
+subreddit = reddit.subreddit('Rlanguage')
+
+# Para cada ventana de tiempo
+for time_filter in time_filters:
+    # Extraemos los 1.000 primeros mensajes     
+    submissions = subreddit.top(time_filter=time_filter, limit=1000)
+    for submission in submissions:
+        data =  [submission.fullname, submission.title, submission.selftext, submission.score ]
+        posts.append(data)
+
+df_r = pd.DataFrame(posts, columns=['id', 'title', 'selfttext', "score"])
+
+```
+
+
+```{python, echo = FALSE, eval = FALSE}
+df_r.to_parquet("data/r_submission_big.parquet")
+```
+
+```{python, echo = FALSE}
+df_r = pd.read_parquet("data/r_submission_big.parquet")
+
+```
+
+---
+
+## Resultado
+
+Obtenemos un poco más, pero... 
+
+```{python}
+df_r.shape
+```
+
+--
+
+... al mismo tiempo tenemos duplicados
+
+```{python}
+
+import numpy as np
+len(np.unique(df_r.id))
+
+```
+
+---
+
+## Probemos con comentarios de python
+
+```{python}
+time_filters = ['day', 'week', 'month', 'year', 'all']
+posts = []
+subreddit = reddit.subreddit('Python')
+
+# Para cada ventana de tiempo
+for time_filter in time_filters:
+    # Extraemos los 1.000 primeros mensajes     
+    submissions = subreddit.top(time_filter=time_filter, limit=1000)
+    for submission in submissions:
+        data =  [submission.fullname, submission.title, submission.selftext, submission.score ]
+        posts.append(data)
+
+df_python = pd.DataFrame(posts, columns=['id', 'title', 'selfttext', "score"])
+```
+
+```{python, echo = FALSE, eval = FALSE}
+df_python.to_parquet("data/python_submission_big.parquet")
+```
+
+
+```{python, echo = FALSE}
+df_python = pd.read_parquet("data/python_submission_big.parquet")
+
+```
+
+
+```{python}
+print(df_python.shape)
+print(len(np.unique(df_python.id)))
+
+```
+
+---
+## Comparemos
+
+
+```{r, message=FALSE, warning=FALSE, echo=FALSE}
+library(arrow)
+library(quanteda)
+library(quanteda.textstats)
+library(dplyr)
+
+python_comments <- read_parquet("data/python_submission_big.parquet")
+r_comments <- read_parquet("data/r_submission_big.parquet")
+
+dataset <- python_comments %>% 
+  mutate(language = "python") %>% 
+  bind_rows(r_comments %>% 
+              mutate(language = "r")
+              )
+
+corpus_python <- dataset %>% 
+  select(text = title,language ) %>% 
+  quanteda::corpus()
+
+dfm_python <- tokens(corpus_python, remove_punct = TRUE) %>% 
+  tokens_remove(stopwords()) %>% 
+  dfm()
+
+
+textstat_frequency(dfm_python, n = 5, groups = language) %>% 
+  select(feature, frequency,group) %>% 
+  head(10) %>% 
+  DT::datatable()
+
+
+
+```
+
+---
+
+## Idea
+
+Podemos planificar descargas periódicas
+
+Ejemplo: Descargar una vez a la semana durante 2 meses
+
+Así, podemos descargar una gran cantidad de información
 
 ---
 
 ## En resumen
 
-Spotify es un caso particular de uso de APIs
+*Spotify* y *Reddit* son casos particulares de uso de APIs
 
 Cada API tiene sus particularidades
 
 La idea de esta clase ha sido aprender la mecánica general de las APIs
 
+--
+
+**En la vida real, muchas veces no contamos con paquetes**
+
+**Y tenemos que relacionarnos directamente con los *endpoints* **
 
 ---
 class: center, middle
