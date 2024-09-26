@@ -169,6 +169,12 @@ curl --request GET \
 En R podemos usar un paquete llamado httr, pero sigue siendo complejo 
 
 
+
+```{r}
+Sys.setenv(SPOTIFY_CLIENT_ID = "8c8ee71ca89b480c94b469fcb121d873")
+Sys.setenv(SPOTIFY_CLIENT_SECRET = "7fdaa51d3fc242a7a2d004689510eb17")
+```
+
 ```{r, eval=F}
 by_httr <- GET(url = "https://api.spotify.com/v1/artists/0du5cEVh5yTK9QJze8zA0C/albums", 
              add_headers(Authorization="Bearer BQDV6qbwbLcun5HK6asPqYRWzvA....7UoN12YtmSf0omuuBbH_rttJ7uzhFMuY")
@@ -283,7 +289,7 @@ Podemos ver el id de un artista mediante la aplicación de escritorio
 ---
 
 ## Discos de Bruno Mars
-
+https://open.spotify.com/artist/0du5cEVh5yTK9QJze8zA0C?si=0fbx6sUJR-m9IuOckJ0xlA
 ```{r}
 bruno_albums <-  get_artist_albums("0du5cEVh5yTK9QJze8zA0C", limit = 50)
 ```
@@ -333,10 +339,14 @@ treasure %>%
 Todos los *tracks* de *Foo Fighters*, *Shakira* y *Slayer*
 
 ```{r shakira-foo-slayer}
+
+library(spotifyr)
 foo_fighters <-  get_artist_audio_features("7jy3rLJdDQY21OgRLCZ9sD", include_groups = "album")
 shakira <-  get_artist_audio_features("0EmeFodog0BfCgMzAIvKQp", include_groups = "album")
-slayer <-  get_artist_audio_features("1IQ2e1buppatiN1bxUVkrk", include_groups = "album")
-full <- bind_rows(foo_fighters, shakira, slayer)
+pantera <-  get_artist_audio_features("14pVkFUHDL207LzLHtSA18", include_groups = "album")
+full <- bind_rows(foo_fighters, shakira, pantera)
+
+
 ```
 
 ```{r plot slayer, echo=FALSE, fig.height=5}
@@ -431,7 +441,9 @@ secuencia <-  seq(0, 950, 50)
 
 ```{r, eval=FALSE, echo=FALSE}
 # Bonus track: podemos resolverlo con map de manera muy compacta
-bandas_rock_df <- map(secuencia, ~get_genre_artists(genre = "rock", market = "CL", limit = 50, offset = .x)) %>% 
+bandas_rock_df <- map(secuencia, ~get_genre_artists(genre = "rock", market = "CL", 
+                                                    limit = 50, 
+                                                    offset = .x)) %>% 
   bind_rows()
 ```
 
@@ -577,9 +589,9 @@ n_discos %>%
 
 ```{r, fig.height=5, fig.align='center'}
 discografia_long <-  discografia %>% 
-  filter(album_release_year > 0 ) %>% 
   group_by(album_release_year) %>%
-  summarise_at(.vars = c("danceability", "energy", "valence", "tempo", "tempo", "duration_ms"), .funs =  mean) %>% 
+  summarise_at(.vars = c("danceability", "energy", "valence", "tempo", "tempo", "duration_ms"), 
+               .funs =  mean) %>% 
   pivot_longer(cols = -album_release_year, names_to = "var", values_to = "value")
 
 discografia_long %>% 
@@ -648,6 +660,34 @@ Queremos comparar las características de las bandas populares y poco populares
 El *dataframe* *bandas_sample* contiene la información de popularidad
 
 El *dataframe* discografía contiene los datos de las bandas 
+
+
+```{r, echo=FALSE, eval=FALSE}
+bandas_sample <- bandas_sample %>% 
+  mutate(popularity_tramos = ntile(popularity, 5)) 
+
+caracteristicas <- discografia %>% 
+  group_by(artist_id) %>% 
+  summarise_at(.vars = c("danceability", "energy", "valence", "tempo", "duration_ms"), 
+               .funs =  mean)
+
+plot_table <- bandas_sample %>% 
+  left_join(caracteristicas, by = c("id" = "artist_id" ) ) %>% 
+  group_by(popularity_tramos) %>% 
+  summarise_at(.vars = c("danceability", "energy", "valence", "tempo", "duration_ms"), 
+               .funs =  mean, na.rm = T) 
+  
+plot_table %>% 
+  ggplot(aes(x = popularity_tramos, y = danceability)) +
+  geom_bar(stat = "identity")
+  
+plot_table %>% 
+  ggplot(aes(x = popularity_tramos, y = valence)) +
+  geom_bar(stat = "identity")
+
+
+
+```
 
 
 ---
