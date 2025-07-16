@@ -1,0 +1,967 @@
+---
+title: "Métodos computacionales para las ciencias sociales"
+subtitle: "Extracción de información web"  
+format: 
+    revealjs:
+      auto-stretch: false
+      scrollable: true
+      link-external-newwindow: true
+css: style.css
+editor: source
+execute:
+  echo: true
+---
+
+```{r setup, include=FALSE}
+options(htmltools.dir.version = FALSE)
+knitr::opts_chunk$set(
+  fig.retina=3,
+  out.width = "70%",
+  cache = FALSE,
+  echo = T,
+  message = FALSE, 
+  warning = FALSE,
+  hiline = TRUE
+)
+options(scipen = 999)
+```
+
+```{r xaringan-themer, include=FALSE, warning=FALSE}
+library(tidyverse)
+library(DT)
+library(kableExtra)
+library(plotly)
+library(readr)
+library(feather)
+
+```
+
+## Contenidos de la clase
+
+Uso de APIs para las ciencias sociales
+
+Spotify
+
+Wikipedia
+
+Reddit
+
+
+## Produciendo datos
+
+::: columns
+::: {.column width="50%"}
+![](imagenes/ferrari.jpg)
+:::
+
+::: {.column width="50%"}
+![](imagenes/tractor.jpg)
+:::
+:::
+
+## Formatos y tecnologías de la web
+
+::: columns
+::: {.column width="50%"}
+![](imagenes/ejemplo_json.png) ![](imagenes/ejemplo_xml.png){width="250px"}
+:::
+
+::: {.column width="50%"}
+![](imagenes/ejemplo_html.png){width="250px"} ![](imagenes/ejemplo_css.jpg){width="250px"}
+:::
+:::
+
+# APIs {.center background-color="aquamarine"}
+
+## ¿Qué es un API?
+
+*Application programming interface* (interfaz de programación de aplicaciones)
+
+Pieza de código que comunica 2 aplicaciones o sistemas
+
+![](imagenes/puente.jpeg){fig-align="center" width="300"}
+
+## ¿Qué es una API
+
+Una API nos permite acceder a datos, sin enterarnos de la implementación que hay detrás
+
+-   ¿SQL?
+-   ¿Grafos?
+-   ¿mongodb?
+
+. . .
+
+*No nos importa*
+
+## Características de una API
+
+Recibe una petición (*request*) y devuelve una respuesta estructurada
+
+La API manda al servidor la solicitud
+
+Generalmente, la respuesta es un archivo json (ahondaremos en esto después)
+
+## Características de una API
+
+**Métodos más comunes**:
+
+-   GET: obtener recurso
+-   POST: crear recurso o enviar datos
+-   PUT: actualizar recurso
+-   PATCH: actualizar recurso
+-   DELETE: eliminar recurso
+
+**Nosotros solo utilizaremos GET y POST**
+
+## Ejemplo de un request
+
+::: panel-tabset
+## curl
+
+Hacer *requests* correctamente implica conocer algunos protocolos
+
+Estamos pidiendo todos los discos de Bruno Mars desde Spotify, usando curl desde la terminal
+
+```{r, eval=F}
+curl request GET \
+url https://api.spotify.com/v1/artists/0du5cEVh5yTK9QJze8zA0C/albums \
+header 'Authorization: Bearer BQDV6qbwbL...AYc3Wja1fhyXVfbDZhnwGwXiSM4l1FZw7UoN12YtmSf0omuuBbH_rttJ7uzhFMuY'
+```
+
+## httr
+
+En R podemos usar un paquete llamado httr, pero sigue siendo complejo
+
+```{r, eval=F}
+by_httr <- GET(url = "https://api.spotify.com/v1/artists/0du5cEVh5yTK9QJze8zA0C/albums", 
+             add_headers(Authorization="Bearer BQDV6qbwbLcun5HK6asPqYRWzvA....7UoN12YtmSf0omuuBbH_rttJ7uzhFMuY")
+)
+```
+
+## spotifyr
+
+Afortunadamente, hay personas que han construído paquetes 😁
+
+```{r, eval=FALSE}
+bruno_mars <- get_artist_albums(id = "0du5cEVh5yTK9QJze8zA0C")
+```
+
+Nos centraremos en esta estrategia
+
+En la vida real tendrán que aprender APIs desde 0
+:::
+
+## Algunas APIs para las ciencias sociales
+
+En este [bookdown](https://bookdown.org/paul/apis_for_social_scientists) se describen varias APIs y aplicaciones para las ciencias sociales
+
+::: columns
+::: {.column width="50%"}
+Algunos ejemplos: 
+  - youtube 
+  - google news 
+  - twitter (X) 
+  - spotify 
+  - google places
+:::
+
+::: {.column width="50%"}
+**Revisaremos un poco spotify, wikipedia y reddit**
+:::
+:::
+
+# spotify {.center background-color="aquamarine"}
+
+## Primeros pasos
+
+[Pasos](https://developer.spotify.com/documentation/web-api) a seguir
+
+1.  Crear una cuenta en spotify (gratis o pagada)
+2.  Entrar a [spotify for developers](https://developer.spotify.com)
+3.  Ir a la sección *dashboard* y crear una aplicación
+4.  Dentro de la aplicación, ir a *settings* y buscar las credenciales (client id y client secret)
+
+### Ahora podemos empezar a descargar datos
+
+## Primeros pasos
+
+```{r, eval=FALSE}
+install.packages("spotifyr")
+```
+
+Con nuestras credenciales debemos activar un *token* que dura **una hora**
+
+```{r crear token}
+library(spotifyr)
+#Crear token a partir de las credenciales
+access_token <- get_spotify_access_token(client_id = Sys.getenv("SPOTIFY_CLIENT_ID"), 
+                                         client_secret = Sys.getenv("SPOTIFY_CLIENT_SECRET"))
+```
+
+**Comentario al margen**
+
+-   Nunca deben escribir explícitamente sus credenciales en el código
+-   Una alternativa es usar variables de ambiente
+
+## Identificadores spotify
+
+Las APIs suelen funcionar con un sistema de identificadores:
+
+-   álbum
+-   artista
+-   mercado
+-   episodios
+
+Podemos ver el id de un artista mediante la aplicación de escritorio
+
+![](imagenes/spotify_logo.png){fig-align="center" width="280"}
+
+## Discos de Bruno Mars
+
+https://open.spotify.com/artist/0du5cEVh5yTK9QJze8zA0C?si=0fbx6sUJR-m9IuOckJ0xlA
+
+```{r}
+bruno_albums <-  get_artist_albums("0du5cEVh5yTK9QJze8zA0C", limit = 50)
+```
+
+```{r, echo=FALSE}
+bruno_albums %>% 
+  select(album_type, id, name, total_tracks) %>% 
+  datatable(options = list(pageLength = 5, dom = "p") )
+```
+
+## Exploremos Unorthodox Jukebox
+
+```{r}
+jukebox <-  get_album_tracks("58ufpQsJ1DS5kq4hhzQDiI" ) # id del álbum
+```
+
+```{r, echo=FALSE}
+jukebox %>% 
+  select(duration_ms, id, name ) %>% 
+  datatable(options = list(pageLength = 5, dom = "p") )
+```
+
+## Exploremos treasure
+
+La API nos devuelve características del *track*
+
+```{r, error=TRUE}
+
+treasure <- get_track_audio_features("55h7vJchibLdUkxdlX3fK7")
+```
+
+```{r, echo=FALSE, eval=FALSE}
+treasure %>% 
+  select(-c("id", "uri", "analysis_url", "time_signature", "track_href", "type") ) %>% 
+  datatable(options = list(pageLength = 5, dom = "p") )
+
+```
+
+## Endpoint deprecated
+
+<img src="imagenes/deprecated.png" fig-align="center" width="1000"/>
+
+## Explorando géneros
+
+La función `get_genre_artists` permite hacer búsquedas con ciertos criterios
+
+-   género
+-   mercado
+
+. . .
+
+Es muy importante el sistema de **paginación**
+
+. . .
+
+En general, las APIs tienen mecanismos para no solicitar toda la información en una sola llamada
+
+## Paginación
+
+-   limit: número de respuestas que queremos (máximo = 50)
+-   offset: índice desde el cual queremos partir (máximo = 1.000)
+
+```{r}
+bandas_chilenas1 <-  get_genre_artists(genre = "rock", market = "CL", limit = 5, offset = 0) # 0 al 4  
+bandas_chilenas2 <-  get_genre_artists(genre = "rock", market = "CL", limit = 5, offset = 5) # 5 al 9  
+```
+
+## Paginación
+
+**Cuando sobrepasamos el 1.000, obtenemos un error**
+
+```{r, error=TRUE}
+final <-  get_genre_artists(genre = "rock", market = "CL", limit = 2, offset = 999) # 999 + 2 = 1001  
+```
+
+## Discos de rock en Chile
+
+**Vamos a descargar la información sobre los álbumes de bandas de rock dentro del mercado chileno**
+
+Debemos seguir los siguientes pasos:
+
+1.  Buscar los identificadores de las bandas
+2.  Buscar los identificadores de los álbumes
+3.  Buscar descargar las canciones de cada álbum
+
+## Discos de rock en Chile
+
+- ¡No olvidemos la paginación!
+
+- Deberías usar un *loop* para iterar sobre una secuencia de *offsets*
+
+- Almacenar la información en una lista puede ser buena idea
+
+- *Pista:* Podría servirles esta secuencia
+
+```{r}
+offsets <-  seq(0, 950, 50)
+```
+
+## Paso 1: descargar las bandas
+
+```{r, eval=FALSE }
+bandas_rock <- list()
+i <- 1 # iterador
+for (off in offsets) 
+{
+  bandas_rock[[i]] <- get_genre_artists(genre = "rock",
+                  market = "CL", 
+                  limit = 50, 
+                  offset = off)
+  i <-  i + 1
+}
+
+bandas_rock_df <- bandas_rock %>% 
+  bind_rows()
+write_csv(bandas_rock_df, "data/bandas_rock_chile.csv")
+```
+
+## Lo mismo en versión map (bonus track)
+
+```{r, eval=FALSE, echo=TRUE}
+# Bonus track: podemos resolverlo con map de manera muy compacta
+bandas_rock_df <- map_df(offsets, ~get_genre_artists(genre = "rock", market = "CL", 
+                                                    limit = 50, 
+                                                    offset = .x)) 
+
+write_csv(bandas_rock_df, "data/bandas_rock_chile.csv")
+```
+
+## Solo las primeras 30 bandas
+
+En sus casas prueben con más bandas
+
+```{r, evl=FALSE}
+offsets <-  seq(0, 20, 10)
+
+bandas_rock <- list()
+i <- 1 # iterador
+for (off in offsets) 
+{
+  bandas_rock[[i]] <- get_genre_artists(genre = "rock",
+                  market = "CL", 
+                  limit = 10, 
+                  offset = off)
+  i <-  i + 1
+}
+
+bandas_rock_df <- bandas_rock %>% 
+  bind_rows()
+
+```
+
+## Paso 2: Extraer álbumes
+
+Ahora buscamos la discografía para todas estas bandas
+
+```{r, eval=FALSE}
+albumes <- list()
+i <- 1 # iterador
+# Para cada banda
+for (id in bandas_rock_df$id) {
+  # Descargar discografía completa 
+  albumes[[i]] <-  get_artist_albums(id) #<<
+  i <- i + 1
+}
+# Combinar todo en una tabla y muestrear 100 álbumes
+albumes_df <- albumes %>% 
+  bind_rows() %>% 
+  sample_n(100) # muestra de 100 álbumes
+write_csv(albumes_df, "data/albumes_mercado_chileno_sample.csv")
+```
+
+## Paso 3: Extraer tracks
+
+Extraemos los tracks para cada álbum
+
+```{r, eval=FALSE}
+tracks <- list()
+
+i <- 1 # iterador
+for (album in albumes_df$id) {
+  tracks[[i]] <- get_album_tracks(album) #<<
+  i <- i + 1 # iterador
+  print(i)
+}
+
+# Unir todo en un dataframe
+tracks_df <- tracks %>% 
+  bind_rows()
+
+# Debemos hacer un pequeño procesamiento, porque tenemos datos anidados
+for (i in 1:nrow(tracks_df) ) 
+{
+    tracks_df$first_artist[[i]] <- tracks_df$artists[[i]]$name[[1]]
+}
+tracks_df$first_artist <- unlist(tracks_df$first_artist)
+
+write_csv(tracks_df, "data/tracks_mercado_chileno_sample.csv")
+```
+
+## Restricciones de la API
+
+<img src="imagenes/rates.png" fig-align="center" width="900"/>
+
+## Exploremos los datos
+
+Guardé previamente algunos datos
+
+```{r}
+sample_tracks <-  read_csv("data/tracks_mercado_chileno_sample.csv") %>% 
+  select(id, first_artist, duration_ms) 
+
+sample_tracks %>% 
+  datatable(options = list(pageLength = 5, dom = "p") )
+```
+
+## Exploremos los datos
+
+```{r}
+sample_tracks <-  sample_tracks %>% 
+  mutate(time_minutes = duration_ms/1000/60 ) ## convertir a minutos
+
+sample_tracks %>% 
+  ggplot(aes(x = time_minutes)) +
+  geom_histogram(bins = 50, fill = "steelblue", color = "black") +
+  labs(title = "Duración de las canciones en el mercado chileno",
+       x = "Duración (minutos)",
+       y = "Frecuencia") +
+  theme_minimal()
+```
+
+## Exploremos los datos
+
+Miremos las bandas con canciones más largas
+
+```{r}
+sample_tracks %>% 
+  group_by(first_artist) %>% 
+  summarise(mean_duration = mean(time_minutes)) %>% 
+  arrange(desc(mean_duration)) %>% 
+  slice(1:10) %>% 
+  ggplot(aes(x = reorder(first_artist, mean_duration), y = mean_duration)) +
+  geom_bar(stat = "identity", fill = "steelblue") +
+  coord_flip() +
+  labs(title = "Artistas con canciones más largas en el mercado chileno",
+       x = "Artista",
+       y = "Duración promedio (minutos)") +
+  theme_minimal()
+```
+
+# wikipedia {.center background-color="aquamarine"}
+
+
+<img src="imagenes/wiki.jpeg" fig-align="center" width="400"/>
+
+## Desafío
+
+**¿Queremos el contenido de los artículos que contengan el concepto Unión Soviética**
+
+. . .
+
+Vamos a interactuar directamente con la API, es decir, sin pasar por un paquete
+
+. . .
+
+- Encontraremos los título de las páginas que contienen *Unión Soviética*
+- Buscaremos el contenido a partir de los títulos encontrados
+
+## Buscando artículos
+
+Debemos armar la estructura del *request*. Usamos método GET
+
+```{r}
+library(httr)
+library(jsonlite)
+
+idioma <- "es"
+consulta <- "unión soviética"
+limite <- 5
+
+url <- paste0("https://", idioma, ".wikipedia.org/w/api.php") 
+print(url)  
+respuesta <- GET(url, query = list(
+    action = "query",
+    format = "json",
+    list = "search", # indica que debe buscar coincidencias
+    srsearch = consulta, # el texto que estamos buscando
+    srlimit = limite # el número de artículos que queremos
+))
+```
+
+## Buscando artículos
+
+Extraemos el contenido de la respuesta con *content*
+
+Dado que está en json, debemos "parsearlo" con *fromJSON*
+
+```{r}
+contenido <- fromJSON(content(respuesta, "text", encoding = "UTF-8"))
+resultados <- contenido$query$search
+DT::datatable(resultados |> select(-snippet))
+```
+
+
+## Buscando artículos
+
+Ya tenemos los títulos que nos interesan 😀​
+
+Ahora debemos buscar el contenido de esos títulos
+
+. . .
+
+Debemos hacer una nueva petición. Probemos con el primer título
+
+```{r}
+titulo <- resultados$title[[1]]
+url <- paste0("https://", idioma, ".wikipedia.org/w/api.php")
+    
+respuesta <- GET(url, query = list(
+    action = "query",
+    format = "json",
+    prop = "extracts",
+    titles = titulo,
+    exlimit = 1,
+    explaintext = TRUE,  # Texto plano sin HTML
+    exsectionformat = "plain" # para evitar los encabezados 
+))
+
+contenido <- fromJSON(content(respuesta, "text", encoding = "UTF-8"))
+paginas <- contenido$query$pages
+paginas[[1]]$extract # se parsea como una lista
+
+
+```
+
+## Buscando artículos
+
+Ahora solo nos falta iterar sobre todos los títulos
+
+```{r}
+urss <- list()
+i <- 1
+url <- paste0("https://", idioma, ".wikipedia.org/w/api.php")
+
+for (titulo in resultados$title )
+{
+
+  respuesta <- GET(url, query = list(
+      action = "query",
+      format = "json",
+      prop = "extracts",
+      titles = titulo, # esta es la parte que va variando
+      exlimit = 1,
+      explaintext = TRUE,  # Texto plano sin HTML
+      exsectionformat = "plain" # para evitar los encabezados 
+  ))
+
+  contenido <- fromJSON(content(respuesta, "text", encoding = "UTF-8"))
+  paginas <- contenido$query$pages
+  urss[[i]] <- paginas[[1]]$extract
+  i <- i + 1
+}
+
+
+
+```
+
+## Versión mejorada
+
+Creamos una función y usamos map 
+
+```{r}
+
+library(purrr)
+obtener_contenido <- function(titulo, idioma = "es")
+{
+    url <- paste0("https://", idioma, ".wikipedia.org/w/api.php")
+    respuesta <- GET(url, query = list(
+      action = "query",
+      format = "json",
+      prop = "extracts",
+      titles = titulo, # esta es la parte que va variando
+      exlimit = 1,
+      explaintext = TRUE,  # Texto plano sin HTML
+      exsectionformat = "plain" # para evitar los encabezados 
+  ))
+
+  contenido <- fromJSON(content(respuesta, "text", encoding = "UTF-8"))
+  paginas <- contenido$query$pages
+  return(paginas[[1]]$extract)
+}
+
+urss <- map(resultados$title , obtener_contenido)
+
+```
+
+## Cosas adicionales
+
+En un código real, debiese haber manejo de casos no exitosos
+
+```{r }
+#| code-line-numbers:[13-21]
+obtener_contenido <- function(titulo, idioma = "es")
+{
+    url <- paste0("https://", idioma, ".wikipedia.org/w/api.php")
+    respuesta <- GET(url, query = list(
+      action = "query",
+      format = "json",
+      prop = "extracts",
+      titles = titulo, # esta es la parte que va variando
+      exlimit = 1,
+      explaintext = TRUE,  # Texto plano sin HTML
+      exsectionformat = "plain" # para evitar los encabezados 
+  ))
+  if (status_code(respuesta) == 200)
+    {
+      contenido <- fromJSON(content(respuesta, "text", encoding = "UTF-8"))
+      paginas <- contenido$query$pages
+      return(paginas[[1]]$extract)
+    } else
+    {
+      return("página no encontrada")
+    }
+
+}
+urss <- map(resultados$title , obtener_contenido)
+
+```
+
+## Cosas adicionales
+
+También es aconsejable agregar *trycatch* 
+
+```{r }
+#| code-line-numbers:[14-24]
+obtener_contenido <- function(titulo, idioma = "es") {
+  url <- paste0("https://", idioma, ".wikipedia.org/w/api.php")
+  respuesta <- GET(url, query = list(
+    action = "query",
+    format = "json",
+    prop = "extracts",
+    titles = titulo,
+    exlimit = 1,
+    explaintext = TRUE,
+    exsectionformat = "plain"
+  ))
+
+  if (status_code(respuesta) == 200) {
+    contenido <- fromJSON(content(respuesta, "text", encoding = "UTF-8"))
+    
+    # Manejar errores al acceder a contenido$query$pages
+    resultado <- tryCatch({
+      paginas <- contenido$query$pages
+      extracto <- paginas[[1]]$extract
+      if (is.null(extracto)) {
+        "extracto no disponible"
+      } else {
+        extracto
+      }
+    }, error = function(e) {
+      paste("error al procesar la respuesta:", e$message)
+    })
+
+    return(resultado)
+  } else {
+    return("página no encontrada")
+  }
+}
+
+```
+
+# reddit {.center background-color="aquamarine"}
+
+## API Reddit
+
+<img src="imagenes/reddit-logo.png" fig-align="center" width="400"/>
+
+[Aquí](https://www.reddit.com/dev/api/oauth) hay documentación de su API
+
+La documentación no es buena 😥
+
+## Praw
+
+Usaremos **PRAW** (Python Reddit API Wrapper) de python
+
+Es mucho más fácil que usar directamente la API 😀
+
+[Aquí](https://praw.readthedocs.io/en/stable/index.html#) está la documentación
+
+## Primeros pasos
+
+Debemos tener una cuenta en reddit e inscribir una aplicación
+
+[Aquí](https://rymur.github.io/setup) están las instrucciones para crear una app
+
+<img src="imagenes/app-creation.png" fig-align="center" width="600"/>
+
+## Autenticación con PRAW 1
+
+```{python, message = F, warning = FALSE}
+
+import praw 
+import pandas as pd # para manipulación de dataframes
+from dotenv import load_dotenv # cargar variables de ambiente
+import os # cargar variables de ambiente
+
+load_dotenv()
+
+client_id = os.getenv('CLIENT_ID')
+client_secret = os.getenv('CLIENT_SECRET')
+username = os.getenv('USERNAME')
+password = os.getenv('PASSWORD')
+user_agent = os.getenv('USER_AGENT')
+auth_url = "https://www.reddit.com/api/v1/access_token"
+
+```
+
+
+## Autenticación con PRAW 2
+
+La función Reddit de *praw* hace la autenticación
+
+```{python}
+reddit = praw.Reddit(
+    client_id=client_id,
+    client_secret=client_secret,
+    user_agent=user_agent
+)
+```
+
+## Descargando datos 1
+
+Entramos al subreddit *bikepacking* y extraemos las dos últimas publicaciones
+
+```{python}
+for submission in reddit.subreddit("bikepacking").new(limit = 2):
+    print(submission.title)
+```
+
+## Descargando datos 2
+
+Contamos con varios métodos
+
+-   new
+-   hot
+-   top
+-   random
+-   controversial
+-   rising
+
+```{python}
+for submission in reddit.subreddit("Rlanguage").new(limit = 2):
+    print(submission.fullname, submission.title)
+```
+
+## Quiero extraer más publicaciones
+
+Usamos el subreddit *Rlanguage* y no ponemos límite
+
+```{python}
+posts = []
+for submission in reddit.subreddit("Rlanguage").top(limit = None):
+    data =  [submission.id, submission.title, submission.selftext, submission.score ]
+    posts.append(data)
+
+df_r = pd.DataFrame(posts, columns=['id', 'title', 'selfttext', "score"])
+```
+
+
+
+## Límite de la API
+
+La API no nos deja descargar más de 1.000 comentarios
+
+```{python}
+df_r.shape
+```
+
+Es común encontrarse con este tipo de cosas 😢
+
+## Podemos ir a buscar más atrás
+
+Fijamos varias ventanas de tiempo
+
+```{python, message=FALSE, warning=FALSE}
+
+time_filters = ['day', 'week', 'month', 'year', 'all']
+posts = []
+subreddit = reddit.subreddit('Rlanguage')
+
+# Para cada ventana de tiempo
+for time_filter in time_filters:
+    # Extraemos los 1.000 primeros mensajes     
+    submissions = subreddit.top(time_filter=time_filter, limit=1000)
+    for submission in submissions:
+        data =  [submission.fullname, submission.title, submission.selftext, submission.score ]
+        posts.append(data)
+
+df_r = pd.DataFrame(posts, columns=['id', 'title', 'selfttext', "score"])
+
+df_r.to_parquet("data/r_submission_big.parquet")
+
+
+
+```
+
+
+## Resultado
+
+Obtenemos un poco más, pero...
+
+```{python}
+df_r.shape
+```
+
+... al mismo tiempo tenemos duplicados
+
+```{python}
+
+import numpy as np
+len(np.unique(df_r.id))
+
+```
+
+## Probemos con comentarios de python
+
+```{python, message=FALSE, warning=FALSE} 
+time_filters = ['day', 'week', 'month', 'year', 'all']
+posts = []
+subreddit = reddit.subreddit('Python')
+
+# Para cada ventana de tiempo
+for time_filter in time_filters:
+    # Extraemos los 1.000 primeros mensajes     
+    submissions = subreddit.top(time_filter=time_filter, limit=1000)
+    for submission in submissions:
+        data =  [submission.fullname, submission.title, submission.selftext, submission.score ]
+        posts.append(data)
+
+df_python = pd.DataFrame(posts, columns=['id', 'title', 'selfttext', "score"])
+df_python.to_parquet("data/python_submission_big.parquet")
+
+```
+
+
+
+```{python}
+print(df_python.shape)
+print(len(np.unique(df_python.id)))
+
+```
+
+## Comparemos
+
+```{r, message=FALSE, warning=FALSE, echo=FALSE}
+library(arrow)
+library(quanteda)
+library(quanteda.textstats)
+library(dplyr)
+
+python_comments <- read_parquet("data/python_submission_big.parquet")
+r_comments <- read_parquet("data/r_submission_big.parquet")
+
+dataset <- python_comments %>% 
+  mutate(language = "python") %>% 
+  bind_rows(r_comments %>% 
+              mutate(language = "r")
+              )
+
+corpus_python <- dataset %>% 
+  select(text = title,language ) %>% 
+  quanteda::corpus()
+
+dfm_python <- tokens(corpus_python, remove_punct = TRUE) %>% 
+  tokens_remove(stopwords()) %>% 
+  dfm()
+
+
+textstat_frequency(dfm_python, n = 5, groups = language) %>% 
+  select(feature, frequency,group) %>% 
+  head(10) %>% 
+  DT::datatable()
+
+
+
+```
+
+## Idea
+
+Podemos planificar descargas periódicas
+
+Ejemplo: Descargar una vez a la semana durante 2 meses
+
+Así, podemos descargar una gran cantidad de información
+
+## Para terminar
+
+**Características frecuentes en las API**
+
+. . .
+
+- Uso de credenciales 
+
+. . .
+
+- Creación de *token*
+
+. . .
+
+- Tasas máximas de descarga (segundo, minuto, hora, etc)
+
+. . .
+
+- Restricciones para datos históricos
+
+. . .
+
+- Obsolescencia de algunos *endpoints*
+
+. . .
+
+- Organización en función de identificadores
+
+
+## Para terminar
+
+*Spotify*, "Wikipedia" y *Reddit* son casos particulares de uso de API
+
+. . .
+
+Cada API tiene sus particularidades
+
+. . .
+
+La idea de esta clase ha sido aprender la mecánica general de las API
+
+En la vida real, muchas veces hay que leer documentación
+
+**Y tenemos que relacionarnos directamente con los *endpoints***
+
+
+# Métodos computacionales para las ciencias sociales {.center background-color="aquamarine"}
+
+
+:::
