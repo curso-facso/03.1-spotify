@@ -51,13 +51,33 @@ Reddit
 
 ::: columns
 ::: {.column width="50%"}
-![](imagenes/ferrari.jpg)
+<img src="imagenes/ferrari.jpg" width="400"/>
 :::
 
 ::: {.column width="50%"}
-![](imagenes/tractor.jpg)
+::: fragment
+<img src="imagenes/tractor.jpg" width="500"/>
 :::
 :::
+:::
+
+
+## Produciendo datos
+
+gratis != fácil
+
+. . .
+
+Las fuentes de datos no tradicionales y/o web muchas veces implican un arduo trabajo de captura y procesamiento
+
+. . .
+
+Debemos entrenarnos para ser buenos productores de información
+
+. . .
+
+### No debemos asustarnos si nos encontramos con tecnologías que no conocemos bien
+
 
 ## Formatos y tecnologías de la web
 
@@ -70,6 +90,40 @@ Reddit
 ![](imagenes/ejemplo_html.png){width="250px"} ![](imagenes/ejemplo_css.jpg){width="250px"}
 :::
 :::
+
+
+
+## Produciendo datos
+
+::: columns
+::: {.column width="50%"}
+#### Existen métodos para extraer datos de las personas
+
+<img src="imagenes/encuesta.png" width="400"/>
+:::
+
+::: {.column width="50%"}
+::: fragment
+#### Existen métodos para extraer datos de internet
+
+![](imagenes/ejemplo_css.jpg){width="400"}
+:::
+:::
+:::
+
+::: fragment
+#### Internet es una gran fuente de información, pero debemos aprender a extraerla
+:::
+
+
+
+## Estrategias que revisaremos
+
+**Utilización de APIs**
+
+. . .
+
+**Web scraping**
 
 # APIs {.center background-color="aquamarine"}
 
@@ -157,11 +211,16 @@ En este [bookdown](https://bookdown.org/paul/apis_for_social_scientists) se desc
 
 ::: columns
 ::: {.column width="50%"}
-Algunos ejemplos: 
-  - youtube 
+Algunos ejemplos:
+
+  - youtube
+
   - google news 
+
   - twitter (X) 
+
   - spotify 
+
   - google places
 :::
 
@@ -591,7 +650,7 @@ for (titulo in resultados$title )
 
 Creamos una función y usamos map 
 
-```{r}
+```{r }
 
 library(purrr)
 obtener_contenido <- function(titulo, idioma = "es")
@@ -618,10 +677,10 @@ urss <- map(resultados$title , obtener_contenido)
 
 ## Cosas adicionales
 
-En un código real, debiese haber manejo de casos no exitosos
+En un código real debiese haber manejo de casos no exitosos
 
-```{r }
-#| code-line-numbers:[13-21]
+```{r `code-line-numbers`="|13-21|" }
+
 obtener_contenido <- function(titulo, idioma = "es")
 {
     url <- paste0("https://", idioma, ".wikipedia.org/w/api.php")
@@ -653,8 +712,8 @@ urss <- map(resultados$title , obtener_contenido)
 
 También es aconsejable agregar *trycatch* 
 
-```{r }
-#| code-line-numbers:[14-24]
+```{r `code-line-numbers`="|17-27|" }
+
 obtener_contenido <- function(titulo, idioma = "es") {
   url <- paste0("https://", idioma, ".wikipedia.org/w/api.php")
   respuesta <- GET(url, query = list(
@@ -964,4 +1023,3 @@ En la vida real, muchas veces hay que leer documentación
 # Métodos computacionales para las ciencias sociales {.center background-color="aquamarine"}
 
 
-:::
